@@ -7,7 +7,6 @@
 #else
 #error no double extension available
 #endif
-#endif
 
 // double
 typedef double   real_t;

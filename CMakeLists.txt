@@ -1,3 +1,6 @@
+# TODO:
+#   * inspect double compute capability on GPU
+
 cmake_minimum_required( VERSION 2.8 )
 
 project( kronos C CXX )
@@ -10,7 +13,7 @@ option( USE_DOUBLE "enable double" ON )
 
 if( USE_DOUBLE )
 	add_definitions( -DUSE_DOUBLE=1 )
-	set( CUDA_NVCC_FLAGS "-arch sm_20" )
+    set( CUDA_NVCC_FLAGS "-arch sm_20" ) # must check first if compute capability is ok
 endif()
 
 ### packages
