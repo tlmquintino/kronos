@@ -13,6 +13,7 @@ endif()
 include_directories( ${OPENCL_INCLUDE_DIRS} )
 
 # provide runtime path to load cl files
+add_definitions( -DKRONOS_USE_DOUBLE=1 )
 add_definitions( -DKRONOS_SRC_DIR="${kronos_SOURCE_DIR}" )
 
 #  core library
@@ -27,4 +28,4 @@ add_executable( kronos main.cc )
 
 target_link_libraries(  kronos kronos_core ${OPENCL_LIBRARIES} )
 
-add_custom_target( kronos_cls SOURCES dvecmult.cl fvecmult.cl )
+add_custom_target( kronos_cls SOURCES vecmult.cl )
