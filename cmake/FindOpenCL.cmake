@@ -25,17 +25,17 @@ if(UNIX)
 
       else() 
 
-		  list( APPEND __OPENCL_PATHS /usr/local/cuda )
+		    list( APPEND __OPENCL_PATHS /usr/local/cuda )
           
-		  if( CUDA_ROOT )
-		 		list( APPEND __OPENCL_PATHS ${CUDA_ROOT} )
-		  endif()
+		    if( CUDA_ROOT )
+		 		 list( APPEND __OPENCL_PATHS ${CUDA_ROOT} )
+		    endif()
 
-          find_path(OPENCL_INCLUDE_DIRS CL/cl.h PATHS ${___OPENCL_PATHS} PATH_SUFFIXES include NO_DEFAULT_PATH)
-          find_path(OPENCL_INCLUDE_DIRS CL/cl.h PATHS ${___OPENCL_PATHS} PATH_SUFFIXES include )
+        find_path(OPENCL_INCLUDE_DIRS NAMES CL/cl.h CL/opencl.h PATHS ${___OPENCL_PATHS} PATH_SUFFIXES include NO_DEFAULT_PATH)
+        find_path(OPENCL_INCLUDE_DIRS NAMES CL/cl.h CL/opencl.h PATHS ${___OPENCL_PATHS} PATH_SUFFIXES include )
 
-          find_library(OPENCL_LIBRARIES OpenCL PATHS ${___OPENCL_PATHS} PATH_SUFFIXES lib NO_DEFAULT_PATH)
-          find_library(OPENCL_LIBRARIES OpenCL PATHS ${___OPENCL_PATHS} PATH_SUFFIXES lib )
+        find_library(OPENCL_LIBRARIES OpenCL PATHS ${___OPENCL_PATHS} PATH_SUFFIXES lib NO_DEFAULT_PATH)
+        find_library(OPENCL_LIBRARIES OpenCL PATHS ${___OPENCL_PATHS} PATH_SUFFIXES lib )
 
       endif()
 
