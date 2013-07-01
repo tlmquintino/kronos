@@ -41,10 +41,10 @@ if(UNIX)
 
 endif()
 
-set( OPENCL_FOUND "FALSE" )
-if( OPENCL_LIBRARIES AND OPENCL_INCLUDE_DIRS )
-    set( OPENCL_FOUND "TRUE" )
-endif()
+include(FindPackageHandleStandardArgs)
+
+find_package_handle_standard_args( OPENCL DEFAULT_MSG 
+                                   OPENCL_LIBRARIES OPENCL_INCLUDE_DIRS )
 
 mark_as_advanced( OPENCL_INCLUDE_DIRS OPENCL_LIBRARIES )
 
