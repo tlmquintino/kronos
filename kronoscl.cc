@@ -134,7 +134,7 @@ void CL::init()
     std::cout << "in " << __FUNCTION__ << std::endl;
 
     // initialize kernel from the program
-    kernel = clCreateKernel( program, "part1", &err );
+    kernel = clCreateKernel( program, "vecmult", &err );
     printf("clCreateKernel: %s\n", oclErrorString(err));
 
     // initialize our CPU memory arrays, send them to the device and set the kernel arguements
