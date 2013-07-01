@@ -1,46 +1,69 @@
-// incrementArray.cu
+// inc_array.cu
+
+#if USE_DOUBLE
+typedef double real_t;
+#else
+typedef float  real_t;
+#endif
+
 #include <stdio.h>
 #include <assert.h>
 #include <cuda.h>
-void incrementArrayOnHost(float *a, int N)
+
+void incrementArrayOnHost(double *a, int N)
 {
   int i;
   for (i=0; i < N; i++) a[i] = a[i]+1.f;
 }
-__global__ void incrementArrayOnDevice(float *a, int N)
+
+__global__ void incrementArrayOnDevice(double *a, int N)
 {
   int idx = blockIdx.x*blockDim.x + threadIdx.x;
   if (idx<N) a[idx] = a[idx]+1.f;
 }
+
 int main(void)
 {
-  float *a_h, *b_h;           // pointers to host memory
-  float *a_d;                 // pointer to device memory
-  int i, N = 10;
-  size_t size = N*sizeof(float);
+  double *a_h, *b_h;           // pointers to host memory
+  double *a_d;                 // pointer to device memory
+  int i, N = 32*1024;
+  size_t size = N*sizeof(double);
+  
   // allocate arrays on host
-  a_h = (float *)malloc(size);
-  b_h = (float *)malloc(size);
+  a_h = (double *)malloc(size);
+  b_h = (double *)malloc(size);
+  
   // allocate array on device 
   cudaMalloc((void **) &a_d, size);
+  
   // initialization of host data
-  for (i=0; i<N; i++) a_h[i] = (float)i;
+  for (i=0; i<N; i++) a_h[i] = (double)i;
   // copy data from host to device
-  cudaMemcpy(a_d, a_h, sizeof(float)*N, cudaMemcpyHostToDevice);
+  cudaMemcpy(a_d, a_h, sizeof(double)*N, cudaMemcpyHostToDevice);
+  
   // do calculation on host
   incrementArrayOnHost(a_h, N);
+  
   // do calculation on device:
+  
   // Part 1 of 2. Compute execution configuration
   int blockSize = 4;
   int nBlocks = N/blockSize + (N%blockSize == 0?0:1);
+  
   // Part 2 of 2. Call incrementArrayOnDevice kernel 
   incrementArrayOnDevice <<< nBlocks, blockSize >>> (a_d, N);
+  
   // Retrieve result from device and store in b_h
-  cudaMemcpy(b_h, a_d, sizeof(float)*N, cudaMemcpyDeviceToHost);
+  cudaMemcpy(b_h, a_d, sizeof(double)*N, cudaMemcpyDeviceToHost);
+  
   // check results
   for (i=0; i<N; i++) assert(a_h[i] == b_h[i]);
+  
   // print
-  for (i=0; i<N; i++) printf( "a_h[i] = %f\n", a_h[i]);
+  /* for (i=0; i<N; i++) printf( "a_h[i] = %f\n", a_h[i]); */
+  
   // cleanup
-  free(a_h); free(b_h); cudaFree(a_d); 
+  free(a_h); 
+  free(b_h); 
+  cudaFree(a_d); 
   }

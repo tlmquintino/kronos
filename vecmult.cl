@@ -1,4 +1,4 @@
-#if KRONOS_USE_DOUBLE
+#if USE_DOUBLE
 
 #if defined(cl_khr_fp64)  // Khronos extension available?
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable
