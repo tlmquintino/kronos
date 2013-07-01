@@ -48,8 +48,3 @@ endif()
 
 mark_as_advanced( OPENCL_INCLUDE_DIRS OPENCL_LIBRARIES )
 
-message( STATUS "OPENCL [${OPENCL_FOUND}]" )
-if(OPENCL_FOUND)
-  message( STATUS "  includes [${OPENCL_INCLUDE_DIRS}]" )
-  message( STATUS "  libs     [${OPENCL_LIBRARIES}]" )
-endif()

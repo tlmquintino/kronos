@@ -7,6 +7,18 @@ set( CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake )
 find_package( CUDA )
 find_package( OpenCL )
 
+message( STATUS "CUDA [${OPENCL_FOUND}]" )
+if(OPENCL_FOUND)
+  message( STATUS "  includes [${OPENCL_INCLUDE_DIRS}]" )
+  message( STATUS "  libs     [${OPENCL_LIBRARIES}]" )
+endif()
+
+message( STATUS "OPENCL [${OPENCL_FOUND}]" )
+if(OPENCL_FOUND)
+  message( STATUS "  includes [${OPENCL_INCLUDE_DIRS}]" )
+  message( STATUS "  libs     [${OPENCL_LIBRARIES}]" )
+endif()
+
 # if( NOT OPENCL_FOUND )
 #	message( FATAL_ERROR "OpenCL not found" )
 # endif()
