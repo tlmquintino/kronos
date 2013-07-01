@@ -7,10 +7,11 @@ set( CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake )
 find_package( CUDA )
 find_package( OpenCL )
 
-message( STATUS "CUDA [${OPENCL_FOUND}]" )
-if(OPENCL_FOUND)
-  message( STATUS "  includes [${OPENCL_INCLUDE_DIRS}]" )
-  message( STATUS "  libs     [${OPENCL_LIBRARIES}]" )
+message( STATUS "CUDA [${CUDA_VERSION_STRING}]" )
+if(CUDA_FOUND)
+  message( STATUS "  version  [${CUDA_VERSION_STRING}]" )
+  message( STATUS "  includes [${CUDA_INCLUDE_DIRS}]" )
+  message( STATUS "  libs     [${CUDA_LIBRARIES}]" )
 endif()
 
 message( STATUS "OPENCL [${OPENCL_FOUND}]" )
@@ -19,26 +20,29 @@ if(OPENCL_FOUND)
   message( STATUS "  libs     [${OPENCL_LIBRARIES}]" )
 endif()
 
-# if( NOT OPENCL_FOUND )
-#	message( FATAL_ERROR "OpenCL not found" )
-# endif()
+if( OPENCL_FOUND )
 
-include_directories( ${OPENCL_INCLUDE_DIRS} )
+	include_directories( ${OPENCL_INCLUDE_DIRS} )
 
-# provide runtime path to load cl files
-add_definitions( -DKRONOS_USE_DOUBLE=1 )
-add_definitions( -DKRONOS_SRC_DIR="${kronos_SOURCE_DIR}" )
+	# provide runtime path to load cl files
+	add_definitions( -DKRONOS_USE_DOUBLE=1 )
+	add_definitions( -DKRONOS_SRC_DIR="${kronos_SOURCE_DIR}" )
 
-#  core library
+	#  core library
 
-list( APPEND kronos_core_files kronoscl.cc kronoscl.h util.cc util.h )
+	list( APPEND kronos_core_files kronoscl.cc kronoscl.h util.cc util.h )
 
-add_library( kronos_core ${kronos_core_files})
+	add_library( kronos_core ${kronos_core_files})
 
-#  executable
+	#  executable
 
-add_executable( kronos main.cc )
+	add_executable( kronos main.cc )
 
-target_link_libraries(  kronos kronos_core ${OPENCL_LIBRARIES} )
+	target_link_libraries(  kronos kronos_core ${OPENCL_LIBRARIES} )
 
-add_custom_target( kronos_cls SOURCES vecmult.cl )
+	add_custom_target( kronos_cls SOURCES vecmult.cl )
+
+endif()
+
+add_subdirectory( sandbox )
+
