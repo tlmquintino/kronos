@@ -15,6 +15,10 @@ endif()
 
 ### packages
 
+set(Boost_USE_MULTITHREADED      ON )
+set(Boost_USE_STATIC_LIBS        ON )
+find_package( Boost 1.50.0 COMPONENTS filesystem program_options date_time thread system )
+
 find_package( CUDA )
 
 message( STATUS "CUDA [${CUDA_VERSION_STRING}]" )
