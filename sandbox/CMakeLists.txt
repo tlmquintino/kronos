@@ -1,1 +1,7 @@
-cuda_add_executable( inc_array inc_array.cu )
+if( CUDA_FOUND )
+	add_subdirectory( cuda )
+endif()
+
+if( OPENCL_FOUND )
+	add_subdirectory( opencl )
+endif()
