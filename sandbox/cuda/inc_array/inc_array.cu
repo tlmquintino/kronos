@@ -1,7 +1,7 @@
 // inc_array.cu
 
 #if USE_DOUBLE
-typedef double real_t;
+typedef real_t real_t;
 #else
 typedef float  real_t;
 #endif
@@ -10,13 +10,13 @@ typedef float  real_t;
 #include <assert.h>
 #include <cuda.h>
 
-void incrementArrayOnHost(double *a, int N)
+void incrementArrayOnHost(real_t *a, int N)
 {
   int i;
   for (i=0; i < N; i++) a[i] = a[i]+1.f;
 }
 
-__global__ void incrementArrayOnDevice(double *a, int N)
+__global__ void incrementArrayOnDevice(real_t *a, int N)
 {
   int idx = blockIdx.x*blockDim.x + threadIdx.x;
   if (idx<N) a[idx] = a[idx]+1.f;
@@ -24,22 +24,22 @@ __global__ void incrementArrayOnDevice(double *a, int N)
 
 int main(void)
 {
-  double *a_h, *b_h;           // pointers to host memory
-  double *a_d;                 // pointer to device memory
+  real_t *a_h, *b_h;           // pointers to host memory
+  real_t *a_d;                 // pointer to device memory
   int i, N = 32*1024;
-  size_t size = N*sizeof(double);
+  size_t size = N*sizeof(real_t);
   
   // allocate arrays on host
-  a_h = (double *)malloc(size);
-  b_h = (double *)malloc(size);
+  a_h = (real_t *)malloc(size);
+  b_h = (real_t *)malloc(size);
   
   // allocate array on device 
   cudaMalloc((void **) &a_d, size);
   
   // initialization of host data
-  for (i=0; i<N; i++) a_h[i] = (double)i;
+  for (i=0; i<N; i++) a_h[i] = (real_t)i;
   // copy data from host to device
-  cudaMemcpy(a_d, a_h, sizeof(double)*N, cudaMemcpyHostToDevice);
+  cudaMemcpy(a_d, a_h, sizeof(real_t)*N, cudaMemcpyHostToDevice);
   
   // do calculation on host
   incrementArrayOnHost(a_h, N);
@@ -54,7 +54,7 @@ int main(void)
   incrementArrayOnDevice <<< nBlocks, blockSize >>> (a_d, N);
   
   // Retrieve result from device and store in b_h
-  cudaMemcpy(b_h, a_d, sizeof(double)*N, cudaMemcpyDeviceToHost);
+  cudaMemcpy(b_h, a_d, sizeof(real_t)*N, cudaMemcpyDeviceToHost);
   
   // check results
   for (i=0; i<N; i++) assert(a_h[i] == b_h[i]);
