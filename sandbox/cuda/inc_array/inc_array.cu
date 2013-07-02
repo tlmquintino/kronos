@@ -1,7 +1,7 @@
 // inc_array.cu
 
 #if USE_DOUBLE
-typedef real_t real_t;
+typedef double real_t;
 #else
 typedef float  real_t;
 #endif
