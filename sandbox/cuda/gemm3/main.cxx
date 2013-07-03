@@ -75,7 +75,7 @@ int main(int argc, char * argv[])
         h_C[i * WC + j] = 0.0;
         for(unsigned int k=0;k< WA;k++)
         {
-          h_C[i * WC + j] += + h_A[i * WA + k] * h_B[k * WB +j];
+          h_C[i * WC + j] +=  h_A[i * WA + k] * h_B[k * WB +j];
         }
       }
     }
@@ -96,7 +96,6 @@ int main(int argc, char * argv[])
     printf("[cuda] time: %6.3f seconds\n", Timer.elapsed() );
 
   }
-
 
   // write result  -------------------------------------------------------
 

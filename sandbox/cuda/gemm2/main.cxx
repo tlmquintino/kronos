@@ -27,7 +27,7 @@ int main(int argc, char * argv[])
   boost::program_options::options_description desc("allowed options");
   desc.add_options()
       ("help", "produce help message")
-      ("file", boost::program_options::value<std::string>() , "naem of the file to create" )
+      ("file", boost::program_options::value<std::string>() , "name of the file to create" )
       ("cuda", "run with cuda code")
       ("native", "run with native code");
 
@@ -81,6 +81,7 @@ int main(int argc, char * argv[])
     }
 
     printf("[native] time: %6.3f seconds\n", ntimer.elapsed() );
+
   }
 
   // run with CUDA code -----------------------------------------------------
