@@ -1,14 +1,10 @@
 // inc_array.cu
 
-#if USE_DOUBLE
-typedef double real_t;
-#else
-typedef float  real_t;
-#endif
-
 #include <stdio.h>
 #include <assert.h>
 #include <cuda.h>
+
+#include "real_t.h"
 
 void incrementArrayOnHost(real_t *a, int N)
 {

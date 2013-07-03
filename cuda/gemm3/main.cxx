@@ -8,15 +8,17 @@
 #include <boost/timer.hpp>
 #include <boost/program_options.hpp>
 
+#include "real_t.h"
+
 #include "matrix_sizes.h"
 #include "matrix_mult.h"
 
-// Allocates a matrix with random float entries
-void random_init(float* data, int size)
+// Allocates a matrix with random real_t entries
+void random_init(real_t* data, int size)
 {
     for (int i = 0; i < size; ++i)
         data[i] = 10*i;
-      //  data[i] = rand() / (float)RAND_MAX;
+      //  data[i] = rand() / (real_t)RAND_MAX;
 }
 
 
@@ -28,8 +30,8 @@ int main(int argc, char * argv[])
   desc.add_options()
       ("help", "produce help message")
       ("file", boost::program_options::value<std::string>() , "name of the file to create" )
-      ("cuda", "run with cuda code")
-      ("native", "run with native code");
+      ("gpu", "run with cuda code")
+      ("cpu", "run with native code");
 
   boost::program_options::variables_map vm;
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
@@ -49,13 +51,13 @@ int main(int argc, char * argv[])
   unsigned int size_B = WB * HB;
   unsigned int size_C = WC * HC;
 
-  unsigned int mem_size_A = sizeof(float) * size_A;
-  unsigned int mem_size_B = sizeof(float) * size_B;
-  unsigned int mem_size_C = sizeof(float) * size_C;
+  unsigned int mem_size_A = sizeof(real_t) * size_A;
+  unsigned int mem_size_B = sizeof(real_t) * size_B;
+  unsigned int mem_size_C = sizeof(real_t) * size_C;
 
-  float* h_A = (float*) malloc(mem_size_A);
-  float* h_B = (float*) malloc(mem_size_B);
-  float* h_C = (float*) malloc(mem_size_C);
+  real_t* h_A = (real_t*) malloc(mem_size_A);
+  real_t* h_B = (real_t*) malloc(mem_size_B);
+  real_t* h_C = (real_t*) malloc(mem_size_C);
 
   /* 2. initialize host memory*/
   random_init(h_A, size_A);
@@ -63,9 +65,8 @@ int main(int argc, char * argv[])
 
   // run with native code ---------------------------------------------------
 
-  if (vm.count("native"))
+  if (vm.count("cpu"))
   {
-
     boost::timer ntimer;
 
     for(unsigned int i=0;i< HA;i++)
@@ -86,7 +87,7 @@ int main(int argc, char * argv[])
 
   // run with CUDA code -----------------------------------------------------
 
-  if (vm.count("cuda"))
+  if (vm.count("gpu"))
   {
 
     boost::timer Timer;

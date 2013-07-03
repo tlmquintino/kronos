@@ -5,17 +5,16 @@
 #include <stdio.h>
 #include <math.h>
 
-// #include <cuda.h>
-// #include <cuda_runtime.h>
+#include "real_t.h"
 
 #include "matrix_sizes.h"
 #include "matrix_mult_kernel.h"
 
-/* Allocates a matrix with random float entries.*/
-void randomInit(float* data, int size)
+/* Allocates a matrix with random real_t entries.*/
+void randomInit(real_t* data, int size)
 {
     for (int i = 0; i < size; ++i)
-        data[i] = rand() / (float)RAND_MAX;
+        data[i] = rand() / (real_t)RAND_MAX;
 }
   
 int
@@ -27,12 +26,12 @@ main(int argc, char** argv)
  
     /* 1. allocate host memory for matrices A and B*/
     unsigned int size_A = WA * HA;
-    unsigned int mem_size_A = sizeof(float) * size_A;
-    float* h_A = (float*) malloc(mem_size_A);
+    unsigned int mem_size_A = sizeof(real_t) * size_A;
+    real_t* h_A = (real_t*) malloc(mem_size_A);
  
     unsigned int size_B = WB * HB;
-    unsigned int mem_size_B = sizeof(float) * size_B;
-    float* h_B = (float*) malloc(mem_size_B);
+    unsigned int mem_size_B = sizeof(real_t) * size_B;
+    real_t* h_B = (real_t*) malloc(mem_size_B);
  
     /* 2. initialize host memory*/
     randomInit(h_A, size_A);
@@ -56,8 +55,8 @@ main(int argc, char** argv)
     }
  
     /* 8. allocate device memory*/
-    float* d_A;
-    float* d_B;
+    real_t* d_A;
+    real_t* d_B;
     cudaMalloc((void**) &d_A, mem_size_A);
     cudaMalloc((void**) &d_B, mem_size_B);
  
@@ -68,11 +67,11 @@ main(int argc, char** argv)
  
     /* 4. allocate host memory for the result C*/
     unsigned int size_C = WC * HC;
-    unsigned int mem_size_C = sizeof(float) * size_C;
-    float* h_C = (float*) malloc(mem_size_C);
+    unsigned int mem_size_C = sizeof(real_t) * size_C;
+    real_t* h_C = (real_t*) malloc(mem_size_C);
  
     /* 10. allocate device memory for the result*/
-    float* d_C;
+    real_t* d_C;
     cudaMalloc((void**) &d_C, mem_size_C);
  
     /* 5. perform the calculation    */

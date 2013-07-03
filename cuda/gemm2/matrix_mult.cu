@@ -11,7 +11,7 @@
 #if 0 // version 1
 // CUDA Kernel
 __global__ void
-cudakernel_matrix_mul( float* C, float* A, float* B, int wA, int wB)
+cudakernel_matrix_mul( real_t* C, real_t* A, real_t* B, int wA, int wB)
 {
 
    // 2D Thread ID
@@ -20,11 +20,11 @@ cudakernel_matrix_mul( float* C, float* A, float* B, int wA, int wB)
 
    // value stores the element that is
    // computed by the thread
-   float value = 0;
+   real_t value = 0;
    for (int i = 0; i < wA; ++i)
    {
-      float elementA = A[ty * wA + i];
-      float elementB = B[i * wB + tx];
+      real_t elementA = A[ty * wA + i];
+      real_t elementB = B[i * wB + tx];
       value += elementA * elementB;
    }
 
@@ -38,7 +38,7 @@ cudakernel_matrix_mul( float* C, float* A, float* B, int wA, int wB)
 // CUDA Kernel
 // Multiply two matrices A * B = C
 __global__ void
-cudakernel_matrix_mul( float* C, float* A, float* B, int wA, int wB)
+cudakernel_matrix_mul( real_t* C, real_t* A, real_t* B, int wA, int wB)
 {
 
    // 2D Thread ID
@@ -47,11 +47,11 @@ cudakernel_matrix_mul( float* C, float* A, float* B, int wA, int wB)
 
    // value stores the element that is
    // computed by the thread
-   float value = 0;
+   real_t value = 0;
    for (int i = 0; i < wA; ++i)
    {
-     float elementA = A[ty * wA + i];
-     float elementB = B[i * wB + tx];
+     real_t elementA = A[ty * wA + i];
+     real_t elementB = B[i * wB + tx];
       value += elementA * elementB;
    }
 
@@ -61,21 +61,21 @@ cudakernel_matrix_mul( float* C, float* A, float* B, int wA, int wB)
 }
 #endif
 
-void gpu_mat_mul(float* h_A, float* h_B, float* h_C )
+void gpu_mat_mul(real_t* h_A, real_t* h_B, real_t* h_C )
 {
 
     // allocate device memory
-    float* d_A;
-    float* d_B;
-    float* d_C;
+    real_t* d_A;
+    real_t* d_B;
+    real_t* d_C;
 
     unsigned int size_A = WA * HA;
     unsigned int size_B = WB * HB;
     unsigned int size_C = WC * HC;
 
-    unsigned int mem_size_A = sizeof(float) * size_A;
-    unsigned int mem_size_B = sizeof(float) * size_B;
-    unsigned int mem_size_C = sizeof(float) * size_C;
+    unsigned int mem_size_A = sizeof(real_t) * size_A;
+    unsigned int mem_size_B = sizeof(real_t) * size_B;
+    unsigned int mem_size_C = sizeof(real_t) * size_C;
 
     cudaMalloc((void**) &d_A, mem_size_A);
     cudaMalloc((void**) &d_B, mem_size_B);

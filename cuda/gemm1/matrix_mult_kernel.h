@@ -1,13 +1,14 @@
-#ifndef _MATRIXMUL_KERNEL_H_
-#define _MATRIXMUL_KERNEL_H_
+#ifndef matrix_mult_kernel_h
+#define matrix_mult_kernel_h
  
 #include <stdio.h>
 
+#include "real_t.h"
 #include "matrix_sizes.h"
 
 // CUDA Kernel
 __global__ void
-matrixMul( float* C, float* A, float* B, int wA, int wB)
+matrixMul( real_t* C, real_t* A, real_t* B, int wA, int wB)
 {
  
    // 2D Thread ID
@@ -16,11 +17,11 @@ matrixMul( float* C, float* A, float* B, int wA, int wB)
  
    // value stores the element that is 
    // computed by the thread
-   float value = 0;
+   real_t value = 0;
    for (int i = 0; i < wA; ++i)
    {
-      float elementA = A[ty * wA + i];
-      float elementB = B[i * wB + tx];
+      real_t elementA = A[ty * wA + i];
+      real_t elementB = B[i * wB + tx];
       value += elementA * elementB;
    }
  
@@ -29,7 +30,6 @@ matrixMul( float* C, float* A, float* B, int wA, int wB)
    C[ty * wA + tx] = value;
 }
  
-#endif // #ifndef _MATRIXMUL_KERNEL_H_
-
+#endif
 
 

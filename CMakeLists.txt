@@ -7,15 +7,6 @@ project( kronos C CXX )
 
 set( CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake )
 
-### options
-
-option( USE_DOUBLE "enable double" ON )
-
-if( USE_DOUBLE )
-	add_definitions( -DUSE_DOUBLE=1 )
-    set( CUDA_NVCC_FLAGS "-arch sm_20" ) # must check first if compute capability is ok
-endif()
-
 ### packages
 
 set(Boost_USE_MULTITHREADED      ON )
@@ -33,10 +24,22 @@ endif()
 
 find_package( OpenCL )
 
-message( STATUS "OPENCL [${OPENCL_FOUND}]" )
+message( STATUS "OpenCL [${OPENCL_FOUND}]" )
 if(OPENCL_FOUND)
   message( STATUS "  includes [${OPENCL_INCLUDE_DIRS}]" )
   message( STATUS "  libs     [${OPENCL_LIBRARIES}]" )
+endif()
+
+### options
+
+option( USE_DOUBLE "enable double" ON )
+if( USE_DOUBLE )
+    message( STATUS "real_t --> double" )
+    add_definitions( -DUSE_DOUBLE=1 )
+    set( CUDA_NVCC_FLAGS "-arch sm_20" ) # must check first if compute capability is ok
+else()
+    message( STATUS "real_t --> float" )
+    add_definitions( -DUSE_DOUBLE=0 )
 endif()
 
 ### contents
