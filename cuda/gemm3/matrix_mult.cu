@@ -90,7 +90,6 @@ cudakernel_matrix_mul( real_t* C, real_t* A, real_t* B, int wA, int wB)
   
 void gpu_mat_mul(real_t* h_A, real_t* h_B, real_t* h_C )
 {
-
     // allocate device memory
     real_t* d_A;
     real_t* d_B;

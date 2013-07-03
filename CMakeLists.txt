@@ -11,24 +11,14 @@ set( CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake )
 
 set(Boost_USE_MULTITHREADED      ON )
 set(Boost_USE_STATIC_LIBS        ON )
+
 find_package( Boost 1.50.0 COMPONENTS filesystem program_options date_time thread system )
+
+find_package( MKL )
 
 find_package( CUDA )
 
-message( STATUS "CUDA [${CUDA_VERSION_STRING}]" )
-if(CUDA_FOUND)
-  message( STATUS "  version  [${CUDA_VERSION_STRING}]" )
-  message( STATUS "  includes [${CUDA_INCLUDE_DIRS}]" )
-  message( STATUS "  libs     [${CUDA_LIBRARIES}]" )
-endif()
-
 find_package( OpenCL )
-
-message( STATUS "OpenCL [${OPENCL_FOUND}]" )
-if(OPENCL_FOUND)
-  message( STATUS "  includes [${OPENCL_INCLUDE_DIRS}]" )
-  message( STATUS "  libs     [${OPENCL_LIBRARIES}]" )
-endif()
 
 ### options
 
@@ -42,6 +32,11 @@ else()
     add_definitions( -DUSE_DOUBLE=0 )
 endif()
 
+### configuratio files
+
+include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
+configure_file( kronos_config.h.in kronos_config.h @ONLY )
+
 ### contents
 
 if( CUDA_FOUND )
@@ -51,3 +46,26 @@ endif()
 if( OPENCL_FOUND )
     add_subdirectory( opencl )
 endif()
+
+### summary
+
+message( STATUS "CUDA [${CUDA_VERSION_STRING}]" )
+if(CUDA_FOUND)
+  message( STATUS "  version  [${CUDA_VERSION_STRING}]" )
+  message( STATUS "  includes [${CUDA_INCLUDE_DIRS}]" )
+  message( STATUS "  libs     [${CUDA_LIBRARIES}]" )
+endif()
+
+message( STATUS "OpenCL [${OPENCL_FOUND}]" )
+if(OPENCL_FOUND)
+  message( STATUS "  includes [${OPENCL_INCLUDE_DIRS}]" )
+  message( STATUS "  libs     [${OPENCL_LIBRARIES}]" )
+endif()
+
+message( STATUS "MKL [${MKL_FOUND}]" )
+if(MKL_FOUND)
+  message( STATUS "  includes [${MKL_INCLUDE_DIRS}]" )
+  message( STATUS "  libs     [${MKL_LIBRARIES}]" )
+endif()
+
+

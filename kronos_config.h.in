@@ -1,0 +1,8 @@
+#ifndef kronos_config_h
+#define kronos_config_h
+
+#cmakedefine CUDA_FOUND
+#cmakedefine OPENCL_FOUND
+#cmakedefine MKL_FOUND
+
+#endif

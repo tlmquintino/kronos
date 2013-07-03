@@ -8,10 +8,17 @@
 #include <boost/timer.hpp>
 #include <boost/program_options.hpp>
 
+#include "kronos_config.h"
 #include "real_t.h"
+
+#ifdef MKL_FOUND
+    #include <mkl.h>
+    #include "mkl_cblas.h"
+#endif
 
 #include "matrix_sizes.h"
 #include "matrix_mult.h"
+#include "mmcublas.h"
 
 // Allocates a matrix with random real_t entries
 void random_init(real_t* data, int size)
@@ -21,17 +28,27 @@ void random_init(real_t* data, int size)
       //  data[i] = rand() / (real_t)RAND_MAX;
 }
 
+void summary( std::string name, double s )
+{
+    double mmflops = 2.0 * (double)WA * (double)HA * (double)WB;
+
+    double gflops = (mmflops * 1.0e-9f) / s;
+
+    printf("[%s] took %6.3f s -> %6.3f GFlops\n",name.c_str(),s,gflops);
+}
+
 
 int main(int argc, char * argv[])
 {
-
   // Declare the supported options.
   boost::program_options::options_description desc("allowed options");
   desc.add_options()
       ("help", "produce help message")
       ("file", boost::program_options::value<std::string>() , "name of the file to create" )
       ("gpu", "run with cuda code")
-      ("cpu", "run with native code");
+      ("mkl", "run with mkl blas dgemm")
+      ("cpu", "run with native code")
+      ("cublas", "run with cuda blas dgemm");
 
   boost::program_options::variables_map vm;
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
@@ -55,13 +72,13 @@ int main(int argc, char * argv[])
   unsigned int mem_size_B = sizeof(real_t) * size_B;
   unsigned int mem_size_C = sizeof(real_t) * size_C;
 
-  real_t* h_A = (real_t*) malloc(mem_size_A);
-  real_t* h_B = (real_t*) malloc(mem_size_B);
-  real_t* h_C = (real_t*) malloc(mem_size_C);
+  real_t* A = (real_t*) malloc(mem_size_A);
+  real_t* B = (real_t*) malloc(mem_size_B);
+  real_t* C = (real_t*) malloc(mem_size_C);
 
   /* 2. initialize host memory*/
-  random_init(h_A, size_A);
-  random_init(h_B, size_B);
+  random_init(A, size_A);
+  random_init(B, size_B);
 
   // run with native code ---------------------------------------------------
 
@@ -73,28 +90,64 @@ int main(int argc, char * argv[])
     {
       for(unsigned int j=0;j< WB;j++)
       {
-        h_C[i * WC + j] = 0.0;
+        C[i * WC + j] = 0.0;
         for(unsigned int k=0;k< WA;k++)
         {
-          h_C[i * WC + j] +=  h_A[i * WA + k] * h_B[k * WB +j];
+          C[i * WC + j] +=  A[i * WA + k] * B[k * WB +j];
         }
       }
     }
 
-    printf("[native] time: %6.3f seconds\n", ntimer.elapsed() );
-
+    summary( "native", ntimer.elapsed() );
   }
 
   // run with CUDA code -----------------------------------------------------
 
   if (vm.count("gpu"))
   {
+    boost::timer ntimer;
 
-    boost::timer Timer;
+    gpu_mat_mul(A, B, C);
 
-    gpu_mat_mul(h_A, h_B, h_C);
+    summary( "gpu", ntimer.elapsed() );
+  }
 
-    printf("[cuda] time: %6.3f seconds\n", Timer.elapsed() );
+  // run with MKL BLAS code -----------------------------------------------------
+
+  if (vm.count("mkl"))
+  {
+    real_t alpha = 1.0;
+    real_t beta = 1.0;
+
+    const int m = WA;
+    const int k = HA;
+    const int n = HB;
+
+//    std::cout << "max threads : " << MKL_Get_Max_Threads() << std::endl;
+//    MKL_Set_Num_Threads(8);
+//    mkl_domain_set_num_threads ( 4, MKL_BLAS );
+
+    boost::timer ntimer;
+
+    cblas_dgemm( CblasRowMajor, CblasNoTrans, CblasNoTrans,
+                 m, n, k, alpha, A, k, B, n, beta, C, n);
+
+    summary( "mkl", ntimer.elapsed() );
+
+  }
+
+  // run with Cuda BLAS code -----------------------------------------------------
+
+  if (vm.count("cublas"))
+  {
+
+    mmcublas_init();
+
+    boost::timer ntimer;
+
+    mmcublas_dgemm(A, B, C);
+
+    summary( "cublas", ntimer.elapsed() );
 
   }
 
@@ -107,7 +160,7 @@ int main(int argc, char * argv[])
     std::ofstream fout ( filename.c_str() );
     for( unsigned  int i = 0; i < size_C; i++)
     {
-      fout << h_C[i] << " ";
+      fout << C[i] << " ";
       if(((i + 1) % WC) == 0 ) fout << "\n";
     }
     fout.close();
@@ -115,9 +168,9 @@ int main(int argc, char * argv[])
 
   // clean up memory -------------------------------------------------------
 
-  free(h_A);
-  free(h_B);
-  free(h_C);
+  free(A);
+  free(B);
+  free(C);
 
   return 0;
 }
