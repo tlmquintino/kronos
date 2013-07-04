@@ -12,7 +12,7 @@ set( CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake )
 set(Boost_USE_MULTITHREADED      ON )
 set(Boost_USE_STATIC_LIBS        ON )
 
-find_package( Boost 1.50.0 COMPONENTS filesystem program_options date_time thread system )
+find_package( Boost 1.50.0 COMPONENTS filesystem program_options date_time thread system  )
 
 find_package( MKL )
 
@@ -25,7 +25,7 @@ find_package( OpenCL )
 option( USE_DOUBLE "enable double" ON )
 if( USE_DOUBLE )
     message( STATUS "real_t --> double" )
-    set( USE_DOUBLE 1 )boo
+    set( USE_DOUBLE 1 )
     set( CUDA_NVCC_FLAGS "-arch sm_20" ) # should check first if compute capability is ok
 else()
     message( STATUS "real_t --> float" )

@@ -7,37 +7,22 @@
 
 //-----------------------------------------------------------------------------
 
-class Gemm
-{
-};
-
-class CpuGemm : public Gemm
-{
-};
+#include "CpuGemm.h"
 
 #ifdef CUDA_FOUND
-class CudaGemm : public Gemm
-{
-};
-#endif
-
-#ifdef CUDA_FOUND
-class CublasGemm : public Gemm
-{
-};
-#endif
-
-#ifdef MKL_FOUND
-class MKLGemm : public Gemm
-{
-};
+#include "CudaGemm.h"
+#include "CublasGemm.h"
 #endif
 
 #ifdef OPENCL_FOUND
-class CLGemm : public Gemm
-{
-};
+#include "CLGemm.h"
 #endif
+
+#ifdef MKL_FOUND
+#include "MKLGemm.h"
+#endif
+
+using namespace kronos;
 
 //-----------------------------------------------------------------------------
 
