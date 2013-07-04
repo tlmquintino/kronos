@@ -25,11 +25,11 @@ find_package( OpenCL )
 option( USE_DOUBLE "enable double" ON )
 if( USE_DOUBLE )
     message( STATUS "real_t --> double" )
-    add_definitions( -DUSE_DOUBLE=1 )
-    set( CUDA_NVCC_FLAGS "-arch sm_20" ) # must check first if compute capability is ok
+    set( USE_DOUBLE 1 )boo
+    set( CUDA_NVCC_FLAGS "-arch sm_20" ) # should check first if compute capability is ok
 else()
     message( STATUS "real_t --> float" )
-    add_definitions( -DUSE_DOUBLE=0 )
+    set( USE_DOUBLE 0 )
 endif()
 
 ### configuratio files
@@ -38,6 +38,8 @@ include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 configure_file( kronos_config.h.in kronos_config.h @ONLY )
 
 ### contents
+
+add_subdirectory( src )
 
 if( CUDA_FOUND )
     add_subdirectory( cuda )

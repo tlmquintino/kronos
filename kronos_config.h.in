@@ -5,4 +5,12 @@
 #cmakedefine OPENCL_FOUND
 #cmakedefine MKL_FOUND
 
+#define USE_DOUBLE @USE_DOUBLE@
+
+#if USE_DOUBLE
+typedef double real_t;
+#else
+typedef float  real_t;
+#endif
+
 #endif
