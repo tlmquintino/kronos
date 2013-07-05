@@ -4,7 +4,7 @@
 #include <assert.h>
 #include <cuda.h>
 
-#include "real_t.h"
+#include "kronos_config.h"
 
 void incrementArrayOnHost(real_t *a, int N)
 {

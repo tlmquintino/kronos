@@ -3,7 +3,7 @@
  
 #include <stdio.h>
 
-#include "real_t.h"
+#include "kronos_config.h"
 #include "matrix_sizes.h"
 
 // CUDA Kernel

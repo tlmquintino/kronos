@@ -1,7 +1,7 @@
 #ifndef mmcublas_h
 #define mmcublas_h
 
-#include "real_t.h"
+#include "kronos_config.h"
 #include "matrix_sizes.h"
 
 void mmcublas_init();

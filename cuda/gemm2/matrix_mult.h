@@ -1,7 +1,7 @@
 #ifndef matrix_mult_h
 #define matrix_mult_h
 
-#include "real_t.h"
+#include "kronos_config.h"
 
 #ifdef __cplusplus
 extern "C" {

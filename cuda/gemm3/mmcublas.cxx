@@ -128,8 +128,11 @@ void mmcublas_dgemm(real_t* A, real_t* B, real_t* C )
         const real_t alpha = 1.0f;
         const real_t beta  = 1.0f;
 
+#if USE_DOUBLE
         ret = cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, WB, HA, WA, &alpha, d_B, WB, d_A, WA, &beta, d_C, WA);
-
+#else
+        ret = cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, WB, HA, WA, &alpha, d_B, WB, d_A, WA, &beta, d_C, WA);
+#endif
         if (ret != CUBLAS_STATUS_SUCCESS)
         {
             printf("cublasDgemm returned error code %d, line(%d)\n", ret, __LINE__);

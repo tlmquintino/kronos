@@ -8,7 +8,7 @@
 #include <boost/timer.hpp>
 #include <boost/program_options.hpp>
 
-#include "real_t.h"
+#include "kronos_config.h"
 
 #include "matrix_sizes.h"
 #include "matrix_mult.h"

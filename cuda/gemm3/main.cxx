@@ -9,7 +9,7 @@
 #include <boost/program_options.hpp>
 
 #include "kronos_config.h"
-#include "real_t.h"
+#include "kronos_config.h"
 
 #ifdef MKL_FOUND
     #include <mkl.h>
@@ -114,6 +114,7 @@ int main(int argc, char * argv[])
 
   // run with MKL BLAS code -----------------------------------------------------
 
+#ifdef MKL_FOUND
   if (vm.count("mkl"))
   {
     real_t alpha = 1.0;
@@ -135,6 +136,7 @@ int main(int argc, char * argv[])
     summary( "mkl", ntimer.elapsed() );
 
   }
+#endif
 
   // run with Cuda BLAS code -----------------------------------------------------
 
