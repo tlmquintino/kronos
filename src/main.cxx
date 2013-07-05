@@ -22,6 +22,10 @@
 #include "MKLGemm.h"
 #endif
 
+#ifdef ViennaCL_FOUND
+#include "ViennaCLGemm.h"
+#endif
+
 using namespace kronos;
 
 //-----------------------------------------------------------------------------
@@ -32,13 +36,14 @@ int main(int argc, char * argv[])
   boost::program_options::options_description desc("allowed options");
   desc.add_options()
           ("help", "produce help message")
-          ("out", boost::program_options::value<std::string>() , "name of the file to create" )
-          ("out", boost::program_options::value<std::string>() , "name of the file to create" )
-          ("cpu", "run with native code")
-          ("cuda", "run with cuda code")
-          ("mkl", "run with mkl blas dgemm")
-          ("cublas", "run with cuda blas dgemm")
-          ("cl", "run with opencl code");
+          ("in",   boost::program_options::value<std::string>() , "name of the file to create" )
+          ("out",  boost::program_options::value<std::string>() , "name of the file to create" )
+          ("cpu",      "run with native code")
+          ("cuda",     "run with cuda code")
+          ("cublas",   "run with cuda blas dgemm")
+          ("mkl",      "run with mkl blas dgemm")
+          ("viennacl", "run with viennacl dgemm")
+          ("cl",       "run with opencl code");
 
   boost::program_options::variables_map vm;
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
@@ -59,14 +64,19 @@ int main(int argc, char * argv[])
       gemm.reset( new CudaGemm() );
 #endif
 
-#ifdef MKL_FOUND
-  if( vm.count("mkl") )
-      gemm.reset( new MKLGemm() );
-#endif
-
 #ifdef CUDA_FOUND
   if( vm.count("cublas") )
       gemm.reset( new CublasGemm() );
+#endif
+
+#ifdef ViennaCL_FOUND
+  if( vm.count("viennacl") )
+      gemm.reset( new ViennaCLGemm() );
+#endif
+
+#ifdef MKL_FOUND
+  if( vm.count("mkl") )
+      gemm.reset( new MKLGemm() );
 #endif
 
 #ifdef OPENCL_FOUND

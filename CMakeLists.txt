@@ -20,7 +20,9 @@ find_package( CUDA )
 
 find_package( OpenCL )
 
-find_package( ViennaCL )
+if( OPENCL_FOUND )
+	find_package( ViennaCL )
+endif()
 
 ### options
 
@@ -73,7 +75,7 @@ if(MKL_FOUND)
 endif()
 
 message( STATUS "ViennaCL [${ViennaCL_FOUND}]" )
-if(MKL_FOUND)
+if(ViennaCL_FOUND)
   message( STATUS "  includes [${VIENNACL_INCLUDE_DIRS}]" )
   message( STATUS "  libs     [${VIENNACL_LIBRARIES}]" )
 endif()
