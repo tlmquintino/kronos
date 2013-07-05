@@ -20,6 +20,8 @@ find_package( CUDA )
 
 find_package( OpenCL )
 
+find_package( ViennaCL )
+
 ### options
 
 option( USE_DOUBLE "enable double" ON )
@@ -70,4 +72,9 @@ if(MKL_FOUND)
   message( STATUS "  libs     [${MKL_LIBRARIES}]" )
 endif()
 
+message( STATUS "ViennaCL [${ViennaCL_FOUND}]" )
+if(MKL_FOUND)
+  message( STATUS "  includes [${VIENNACL_INCLUDE_DIRS}]" )
+  message( STATUS "  libs     [${VIENNACL_LIBRARIES}]" )
+endif()
 
