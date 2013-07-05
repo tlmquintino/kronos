@@ -13,6 +13,10 @@ public:
 
     ViennaCLGemm();
 
+    std::string name() { return "viennacl"; }
+
+    void compute();
+
 };
 
 //------------------------------------------------------------------------------------------

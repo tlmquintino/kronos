@@ -3,3 +3,7 @@
 kronos::ViennaCLGemm::ViennaCLGemm()
 {
 }
+
+void kronos::ViennaCLGemm::compute()
+{
+}

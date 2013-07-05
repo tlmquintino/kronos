@@ -3,3 +3,7 @@
 kronos::CpuGemm::CpuGemm()
 {
 }
+
+void kronos::CpuGemm::compute()
+{
+}

@@ -3,3 +3,7 @@
 kronos::CudaGemm::CudaGemm()
 {
 }
+
+void kronos::CudaGemm::compute()
+{
+}

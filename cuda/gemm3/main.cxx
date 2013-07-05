@@ -9,7 +9,6 @@
 #include <boost/program_options.hpp>
 
 #include "kronos_config.h"
-#include "kronos_config.h"
 
 #ifdef MKL_FOUND
     #include <mkl.h>

@@ -3,3 +3,7 @@
 kronos::MKLGemm::MKLGemm()
 {
 }
+
+void kronos::MKLGemm::compute()
+{
+}
