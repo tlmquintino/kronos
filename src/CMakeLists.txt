@@ -26,4 +26,11 @@ if( Boost_FOUND )
         target_link_libraries( gemm mklgemm )
     endif()
 
+    if( ViennaCL_FOUND )
+        include_directories( ${VIENNACL_INCLUDE_DIRS} )
+        add_library( viennaclgemm ViennaCLGemm.cxx ViennaCLGemm.h )
+        target_link_libraries( viennaclgemm ${VIENNACL_LIBRARIES} )
+        target_link_libraries( gemm viennaclgemm )
+    endif()
+
 endif()

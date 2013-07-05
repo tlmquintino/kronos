@@ -1,5 +1,5 @@
-#ifndef kronos_CublasGemm_h
-#define kronos_CublasGemm_h
+#ifndef kronos_ViennaCLGemm_h
+#define kronos_ViennaCLGemm_h
 
 #include "Gemm.h"
 
@@ -7,11 +7,11 @@ namespace kronos {
 
 //------------------------------------------------------------------------------------------
 
-class CublasGemm : public Gemm {
+class ViennaCLGemm : public Gemm {
 
 public:
 
-    CublasGemm();
+    ViennaCLGemm();
 
 };
 
