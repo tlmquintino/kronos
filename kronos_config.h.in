@@ -4,6 +4,7 @@
 #cmakedefine CUDA_FOUND
 #cmakedefine OPENCL_FOUND
 #cmakedefine MKL_FOUND
+#cmakedefine ViennaCL_FOUND
 
 #define USE_DOUBLE @USE_DOUBLE@
 
