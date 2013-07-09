@@ -5,6 +5,8 @@
 
 #include <boost/filesystem/path.hpp>
 
+#include "MData.h"
+
 namespace kronos {
 
 //------------------------------------------------------------------------------------------
@@ -54,6 +56,8 @@ protected: // members
     long long flops_;
 
     boost::filesystem::path test_;
+
+    MData* mm_;
 
 };
 

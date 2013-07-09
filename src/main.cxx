@@ -61,11 +61,20 @@ int main(int argc, char * argv[])
           ("help", "produce help message")
           ("test",   boost::program_options::value<std::string>() , "directory with test data" )
           ("cpu",      "run with native code")
+        #ifdef CUDA_FOUND
           ("cuda",     "run with cuda code")
           ("cublas",   "run with cuda blas dgemm")
+        #endif
+        #ifdef MKL_FOUND
           ("mkl",      "run with mkl blas dgemm")
+        #endif
+        #ifdef ViennaCL_FOUND
           ("viennacl", "run with viennacl dgemm")
-          ("cl",       "run with opencl code");
+        #endif
+        #ifdef OPENCL_FOUND
+          ("cl",       "run with opencl code")
+        #endif
+          ;
 
   boost::program_options::variables_map vm;
   boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
@@ -77,8 +86,9 @@ int main(int argc, char * argv[])
   }
 
   if(!vm.count("test")) {
-      std::cout << "error: no test data directory" << std::endl;
+      std::cout << "error: no test data directory\n" << std::endl;
       std::cout << desc << std::endl;
+      return 1;
   }
 
   boost::filesystem::path tpath( vm["test"].as<std::string>() );
