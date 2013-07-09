@@ -9,7 +9,7 @@ if( Boost_FOUND )
     target_link_libraries( gemm gemmcore ${Boost_LIBRARIES} )
 
     if( CUDA_FOUND )
-        cuda_add_library( cudagemm CudaGemm.cxx CudaGemm.h CublasGemm.cxx CublasGemm.h )
+        cuda_add_library( cudagemm CudaUtils.h CudaGemm.cxx CudaGemm.h CublasGemm.cxx CublasGemm.h cuda_gemm.h cuda_gemm.cu )
         cuda_add_cublas_to_target( cudagemm )
         target_link_libraries( gemm cudagemm )
     endif()

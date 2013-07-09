@@ -1,6 +1,10 @@
 #ifndef kronos_ViennaCLGemm_h
 #define kronos_ViennaCLGemm_h
 
+#include "viennacl/matrix.hpp"
+
+#include "kronos_config.h"
+
 #include "Gemm.h"
 
 namespace kronos {
@@ -15,7 +19,15 @@ public:
 
     std::string name() { return "viennacl"; }
 
+    void initiate();
     void compute();
+    void terminate();
+
+private:
+
+    viennacl::matrix<real_t> d_A;
+    viennacl::matrix<real_t> d_B;
+    viennacl::matrix<real_t> d_C;
 
 };
 

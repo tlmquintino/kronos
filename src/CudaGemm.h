@@ -15,8 +15,19 @@ public:
 
     std::string name() { return "cuda"; }
 
+    void initiate();
     void compute();
+    void terminate();
 
+private: // members
+
+    unsigned int size_A;
+    unsigned int size_B;
+    unsigned int size_C;
+
+    real_t* d_A; ///< device memory matrix A
+    real_t* d_B; ///< device memory matrix B
+    real_t* d_C; ///< device memory matrix C
 };
 
 //------------------------------------------------------------------------------------------

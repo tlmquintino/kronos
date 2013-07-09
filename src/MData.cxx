@@ -14,8 +14,7 @@ void kronos::MData::load_be_cm(kronos::MData::matrix_t &m, std::istream &in)
 {
     real_t b;
 
-    // skip first 8 bytes
-    in.read( reinterpret_cast<char*>(&b), sizeof(real_t));
+    in.read( reinterpret_cast<char*>(&b), 4);  // skip first 4 bytes
 
     for (size_t j = 0; j < m.size2 (); ++j)
         for (size_t i = 0; i < m.size1 (); ++i)
@@ -45,11 +44,13 @@ void kronos::MData::load( kronos::MData::matrix_t& m, std::istream &in )
             in >> m (i, j);
 }
 
-void kronos::MData::print(const kronos::MData::matrix_t& m, std::ostream& out, size_t line)
+void kronos::MData::print(const kronos::MData::matrix_t& m, std::ostream& out, size_t line, size_t col )
 {
     if( !line ) line = std::numeric_limits<size_t>::max();
+    if( !col  ) col  = std::numeric_limits<size_t>::max();
 
-    for ( size_t i = 0; i < m.size1 (); ++i )
+    size_t i = 0;
+    for ( ; i < m.size1() && i < col; ++i )
     {
         size_t j = 0;
         for ( ; j < m.size2() && j < line; ++j )
@@ -58,6 +59,10 @@ void kronos::MData::print(const kronos::MData::matrix_t& m, std::ostream& out, s
             out << " ...";
         out << std::endl;
     }
+
+    if( i == col )
+        out << " ...";
+    out << std::endl;
 }
 
 //------------------------------------------------------------------------------------------

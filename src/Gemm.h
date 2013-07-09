@@ -47,13 +47,18 @@ protected: // methods
 
 protected: // members
 
-    struct {
-        double initiate;
+    struct
+    {
+        double copy_in;
         double compute;
-        double terminate;
+        double copy_out;
     } timers_ ;
 
-    long long flops_;
+    real_t norm_L2_;
+
+    double copy_into_;
+    double copy_back_;
+    double flops_;
 
     boost::filesystem::path test_;
 

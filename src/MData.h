@@ -11,7 +11,7 @@ namespace kronos {
 
 struct MData
 {
-    typedef boost::numeric::ublas::matrix<real_t> matrix_t;
+    typedef boost::numeric::ublas::matrix< real_t, boost::numeric::ublas::row_major, std::vector<real_t> > matrix_t;
 
     MData( size_t m, size_t k, size_t n ) :
         m_(m), k_(k), n_(n),
@@ -31,6 +31,8 @@ struct MData
     matrix_t C;   ///< C matrix in C = A * B
     matrix_t Cr;  ///< reference answer
 
+    double flops() { return 2.0 * (double)m_ * (double)k_ * (double)n_; }
+
     /// loads a matrix that is stored in big endian, column-major
     static void load_be_cm( matrix_t& m,  std::istream& in );
 
@@ -38,7 +40,7 @@ struct MData
     static void load( matrix_t& m,  std::istream& in );
 
     /// print a matrix in ascii
-    static void print( const matrix_t& m,  std::ostream& out, size_t line = 0 );
+    static void print( const matrix_t& m,  std::ostream& out, size_t line = 0, size_t col = 0 );
 
 };
 

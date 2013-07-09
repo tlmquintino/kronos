@@ -15,8 +15,9 @@ public:
 
     std::string name() { return "cl"; }
 
+    void initiate();
     void compute();
-
+    void terminate();
 };
 
 //------------------------------------------------------------------------------------------
