@@ -1,6 +1,14 @@
 #include "BlasGemm.h"
 
 extern "C" {
+
+extern void sgemm_( char *transa, char *transb,
+                    int *m, int *n, int *k,
+                    float *alpha, float *a, int *lda,
+                    float *b, int *ldb,
+                    float *beta,
+                    float *c, int *ldc );
+
 extern void dgemm_( char *transa, char *transb,
                     int *m, int *n, int *k,
                     double *alpha, double *a, int *lda,
@@ -26,6 +34,13 @@ void kronos::BlasGemm::compute()
     real_t* B = &mm_->B.data()[0];
     real_t* C = &mm_->C.data()[0];
 
+//    for( int i = 0; i < m*n; ++i )
+//        C[i] = 0.;
+
+#if USE_DOUBLE
     dgemm_( "n", "n", &m, &n, &k, &alpha, A, &k, B, &n, &beta, C, &n );
+#else
+    sgemm_( "n", "n", &m, &n, &k, &alpha, A, &k, B, &n, &beta, C, &n );
+#endif
 
 }

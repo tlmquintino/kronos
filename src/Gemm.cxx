@@ -32,8 +32,8 @@ void kronos::Gemm::setup(const boost::filesystem::path& p)
 #if 1
 
     const size_t lat = 2; ///< latitude
-    const size_t trc = 2; ///< truncation
-    const size_t fld = 2; ///< field
+    const size_t trc = 3; ///< truncation
+    const size_t fld = 4; ///< field
 
     mm_ = new MData( lat, trc, fld );
 
@@ -41,21 +41,43 @@ void kronos::Gemm::setup(const boost::filesystem::path& p)
     MData::matrix_t& B  = mm_->B;
     MData::matrix_t& Cr = mm_->Cr;
 
-    A(0,0) = 2;
-    A(1,0) = 3;
+//
+    A(0,0) = 1;
     A(0,1) = 2;
-    A(1,1) = 3;
+    A(0,2) = 3;
 
-    B(0,0) = 4;
-    B(1,0) = 5;
-    B(0,1) = 4;
-    B(1,1) = 5;
+    A(1,0) = 2;
+    A(1,1) = 4;
+    A(1,2) = 6;
+//
+    B(0,0) = 1;
+    B(1,0) = 1;
+    B(2,0) = 1;
 
-    Cr(0,0) = 18;
-    Cr(1,0) = 27;
+    B(0,1) = 3;
+    B(1,1) = 3;
+    B(2,1) = 3;
+
+    B(0,2) = 5;
+    B(1,2) = 5;
+    B(2,2) = 5;
+
+    B(0,3) = 7;
+    B(1,3) = 7;
+    B(2,3) = 7;
+//
+    Cr(0,0) = 6;
+    Cr(1,0) = 12;
+
     Cr(0,1) = 18;
-    Cr(1,1) = 27;
+    Cr(1,1) = 36;
 
+    Cr(0,2) = 30;
+    Cr(1,2) = 60;
+
+    Cr(0,3) = 42;
+    Cr(1,3) = 84;
+//
 #else
     const size_t  wn = 639; ///< wave number
 
