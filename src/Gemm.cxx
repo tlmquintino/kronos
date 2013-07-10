@@ -28,6 +28,35 @@ kronos::Gemm::Gemm() :
 
 void kronos::Gemm::setup(const boost::filesystem::path& p)
 {
+
+#if 1
+
+    const size_t lat = 2; ///< latitude
+    const size_t trc = 2; ///< truncation
+    const size_t fld = 2; ///< field
+
+    mm_ = new MData( lat, trc, fld );
+
+    MData::matrix_t& A  = mm_->A;
+    MData::matrix_t& B  = mm_->B;
+    MData::matrix_t& Cr = mm_->Cr;
+
+    A(0,0) = 2;
+    A(1,0) = 3;
+    A(0,1) = 2;
+    A(1,1) = 3;
+
+    B(0,0) = 4;
+    B(1,0) = 5;
+    B(0,1) = 4;
+    B(1,1) = 5;
+
+    Cr(0,0) = 18;
+    Cr(1,0) = 27;
+    Cr(0,1) = 18;
+    Cr(1,1) = 27;
+
+#else
     const size_t  wn = 639; ///< wave number
 
     const size_t lat = 442; ///< latitude
@@ -52,27 +81,28 @@ void kronos::Gemm::setup(const boost::filesystem::path& p)
     fc_name << "data/antisymmetric_matrix_" << std::setw(5) << std::setfill('0') << wn
             << "_latitude_x_field_"         << std::setw(5) << std::setfill('0') << lat
             << "_"                          << std::setw(5) << std::setfill('0') << fld;
-
     // A
 
     std::ifstream fa;
     fa.open( fa_name.str().c_str(), ios::in | ios::binary );
-    MData::load_be_cm( mm_->A , fa );
+    MData::load( mm_->A , fa, 4 ); /* skip 4 bytes of fortran unformated */
     fa.close();
 
     // B
 
     std::ifstream fb;
     fb.open( fb_name.str().c_str(), ios::in | ios::binary );
-    MData::load_be_cm( mm_->B , fb );
+    MData::load( mm_->B , fb, 4 ); /* skip 4 bytes of fortran unformated */
     fb.close();
 
     // Cr
 
     std::ifstream fc;
     fc.open( fc_name.str().c_str(), ios::in | ios::binary );
-    MData::load_be_cm( mm_->Cr , fc );
+    MData::load( mm_->Cr , fc, 4 ); /* skip 4 bytes of fortran unformated */
     fc.close();
+
+#endif
 
     std::cout << "A(" << mm_->m_ << "," << mm_->k_ << ") * B(" << mm_->k_ << "," << mm_->n_ << ")" << std::endl;
 

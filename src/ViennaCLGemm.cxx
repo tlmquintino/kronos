@@ -21,6 +21,9 @@ void kronos::ViennaCLGemm::initiate()
 
     viennacl::copy( A,  d_A );
     viennacl::copy( B,  d_B );
+
+    copy_into_ += A.size1() * A.size2() * sizeof(real_t) +
+                  B.size1() * B.size2() * sizeof(real_t);
 }
 
 void kronos::ViennaCLGemm::compute()
@@ -33,4 +36,6 @@ void kronos::ViennaCLGemm::terminate()
     MData::matrix_t& C = mm_->C;
 
     viennacl::copy( d_C,  C );
+
+    copy_back_ += C.size1() * C.size2() * sizeof(real_t);
 }

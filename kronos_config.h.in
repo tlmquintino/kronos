@@ -5,13 +5,28 @@
 #cmakedefine OPENCL_FOUND
 #cmakedefine MKL_FOUND
 #cmakedefine ViennaCL_FOUND
+#cmakedefine BLAS_FOUND
 
 #define USE_DOUBLE @USE_DOUBLE@
 
 #if USE_DOUBLE
-typedef double real_t;
-#else
-typedef float  real_t;
-#endif
 
+#ifdef OPENCL_FOUND
+#if defined(cl_khr_fp64)     /* Khronos extension available? */
+#pragma OPENCL EXTENSION cl_khr_fp64 : enable
+#elif defined(cl_amd_fp64)   /* AMD extension available? */
+#pragma OPENCL EXTENSION cl_amd_fp64 : enable
+//#else
+//#error no double extension available
 #endif
+#endif /* OPENCL_FOUND */
+
+typedef double real_t;
+
+#else
+
+typedef float  real_t;
+
+#endif /* USE_DOUBLE */
+
+#endif /* kronos_config_h */

@@ -9,8 +9,8 @@ kronos::MKLGemm::MKLGemm()
 
 void kronos::MKLGemm::compute()
 {
-    const real_t alpha = 1.0;
-    const real_t beta = 1.0;
+    const real_t alpha  = 1.0;
+    const real_t beta   = 0.0;
 
     const int m = mm_->m_;
     const int k = mm_->k_;
@@ -24,6 +24,6 @@ void kronos::MKLGemm::compute()
 //    MKL_Set_Num_Threads(8);
 //    mkl_domain_set_num_threads ( 4, MKL_BLAS );
 
-    cblas_dgemm( CblasRowMajor, CblasNoTrans, CblasNoTrans,
+    cblas_dgemm( CblasColMajor, CblasNoTrans, CblasNoTrans,
                  m, n, k, alpha, A, k, B, n, beta, C, n);
 }

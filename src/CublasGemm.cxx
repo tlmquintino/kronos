@@ -70,8 +70,8 @@ void kronos::CublasGemm::compute()
     if( (ret = cublasCreate(&handle)) != CUBLAS_STATUS_SUCCESS )
         printf("cublasCreate returned error code %d, line(%d)\n", ret, __LINE__), exit(EXIT_FAILURE);
 
-    const real_t alpha = 1.0f;
-    const real_t beta  = 1.0f;
+    const real_t alpha = 1.0;
+    const real_t beta  = 0.0;
 
 #if USE_DOUBLE
 

@@ -10,38 +10,56 @@
 
 //------------------------------------------------------------------------------------------
 
-void kronos::MData::load_be_cm(kronos::MData::matrix_t &m, std::istream &in)
+void kronos::MData::load(kronos::MData::matrix_t &m, std::istream &in, size_t skip, bool be, bool cm )
 {
     real_t b;
 
-    in.read( reinterpret_cast<char*>(&b), 4);  // skip first 4 bytes
+    // skip first n bytes
+    if(skip)
+        in.read( reinterpret_cast<char*>(&b), skip);
 
-    for (size_t j = 0; j < m.size2 (); ++j)
-        for (size_t i = 0; i < m.size1 (); ++i)
-        {
-            if( ! in.read( reinterpret_cast<char*>(&b), sizeof(real_t)) )
+    if( cm ) /* column-major ordering */
+    {
+        for (size_t j = 0; j < m.size2 (); ++j)
+            for (size_t i = 0; i < m.size1 (); ++i)
             {
-                std::cerr << "error reading matrix" << std::endl;
-                ::abort();
-            }
-
-//            std::cerr << "m(" << i << "," << j << ") "  << b << std::endl;
+                if( ! in.read( reinterpret_cast<char*>(&b), sizeof(real_t)) )
+                    std::cerr << "error reading matrix" << std::endl, ::abort();
 
 #ifdef BOOST_LITTLE_ENDIAN
-            kronos::reverse_endian( &b );
+            if( be )
+                kronos::reverse_endian( &b );
 #endif
 
-//            std::cout << "m(" << i << "," << j << ") " << b << std::endl;
-
+#ifdef BOOST_BIG_ENDIAN
+            if( ! be )
+                kronos::reverse_endian( &b );
+#endif
             m(i, j) = b;
-        }
-}
 
-void kronos::MData::load( kronos::MData::matrix_t& m, std::istream &in )
-{
-    for (size_t i = 0; i < m.size1 (); ++i)
-        for (size_t j = 0; j < m.size2 (); ++j)
-            in >> m (i, j);
+            }
+    }
+    else /* row-major ordering */
+    {
+        for (size_t i = 0; i < m.size1 (); ++i)
+            for (size_t j = 0; j < m.size2 (); ++j)
+            {
+                if( ! in.read( reinterpret_cast<char*>(&b), sizeof(real_t)) )
+                    std::cerr << "error reading matrix" << std::endl, ::abort();
+
+#ifdef BOOST_LITTLE_ENDIAN
+            if( be )
+                kronos::reverse_endian( &b );
+#endif
+
+#ifdef BOOST_BIG_ENDIAN
+            if( ! be )
+                kronos::reverse_endian( &b );
+#endif
+            m(i, j) = b;
+
+            }
+    }
 }
 
 void kronos::MData::print(const kronos::MData::matrix_t& m, std::ostream& out, size_t line, size_t col )

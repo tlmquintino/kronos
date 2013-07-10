@@ -33,4 +33,10 @@ if( Boost_FOUND )
         target_link_libraries( gemm viennaclgemm )
     endif()
 
+    if( BLAS_FOUND )
+        add_library( blasgemm BlasGemm.cxx BlasGemm.h )
+        target_link_libraries( blasgemm ${BLAS_LIBRARIES} )
+        target_link_libraries( gemm blasgemm )
+    endif()
+
 endif()

@@ -24,6 +24,8 @@ if( OPENCL_FOUND )
 	find_package( ViennaCL )
 endif()
 
+find_package( BLAS )
+
 ### options
 
 option( USE_DOUBLE "enable double" ON )
@@ -78,5 +80,10 @@ message( STATUS "ViennaCL [${ViennaCL_FOUND}]" )
 if(ViennaCL_FOUND)
   message( STATUS "  includes [${VIENNACL_INCLUDE_DIRS}]" )
   message( STATUS "  libs     [${VIENNACL_LIBRARIES}]" )
+endif()
+
+message( STATUS "BLAS [${BLAS_FOUND}]" )
+if(BLAS_FOUND)
+  message( STATUS "  libs     [${BLAS_LIBRARIES}]" )
 endif()
 

@@ -27,6 +27,10 @@
 #include "ViennaCLGemm.h"
 #endif
 
+#ifdef BLAS_FOUND
+#include "BlasGemm.h"
+#endif
+
 using namespace kronos;
 
 //-----------------------------------------------------------------------------
@@ -72,6 +76,9 @@ int main(int argc, char * argv[])
         #ifdef OPENCL_FOUND
           ("cl",       "run with opencl code")
         #endif
+        #ifdef BLAS_FOUND
+          ("blas",     "run with blas code")
+        #endif
           ;
 
   boost::program_options::variables_map vm;
@@ -111,6 +118,10 @@ int main(int argc, char * argv[])
 
 #ifdef OPENCL_FOUND
   if( vm.count("cl") ) run( new CLGemm(), tpath );
+#endif
+
+#ifdef BLAS_FOUND
+  if( vm.count("blas") ) run( new BlasGemm(), tpath );
 #endif
 
 }
