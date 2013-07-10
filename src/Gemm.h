@@ -37,13 +37,13 @@ public: // methods
 protected: // methods
 
     /// initializes the computing environment, if necessary
-    virtual void initiate() {}
+    virtual void copy_into() {}
 
     /// performs the actual computations
     virtual void compute() = 0;
 
     /// terminates the computing environment, if necessary
-    virtual void terminate() {}
+    virtual void copy_out() {}
 
 protected: // members
 

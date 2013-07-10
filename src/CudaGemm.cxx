@@ -12,7 +12,7 @@ kronos::CudaGemm::CudaGemm()
 {
 }
 
-void kronos::CudaGemm::initiate()
+void kronos::CudaGemm::copy_into()
 {
     size_A = mm_->A.size1() * mm_->A.size2();
     size_B = mm_->B.size1() * mm_->B.size2();
@@ -46,7 +46,7 @@ void kronos::CudaGemm::compute()
     cuda_gemm(d_A,d_B,d_C,M,K,N);
 }
 
-void kronos::CudaGemm::terminate()
+void kronos::CudaGemm::copy_out()
 {
     unsigned int mem_size_C = sizeof(real_t) * size_C;
 

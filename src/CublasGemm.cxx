@@ -8,7 +8,7 @@ kronos::CublasGemm::CublasGemm()
 {
 }
 
-void kronos::CublasGemm::initiate()
+void kronos::CublasGemm::copy_into()
 {
     int devID = 0;
 
@@ -43,10 +43,15 @@ void kronos::CublasGemm::initiate()
     CALL_CUDA( cudaMemcpy(d_B, B, mem_size_B, cudaMemcpyHostToDevice) );
 
     copy_into_ += mem_size_A + mem_size_B;
+
+    CALL_CUBLAS( cublasCreate(&handle) );
 }
 
 void kronos::CublasGemm::compute()
 {
+    const real_t alpha = 1.0;
+    const real_t beta  = 0.0;
+
     const int m = mm_->m_;
     const int k = mm_->k_;
     const int n = mm_->n_;
@@ -54,11 +59,6 @@ void kronos::CublasGemm::compute()
     const int lda = m; // leading dimension in A, lda>=max(1,m)
     const int ldb = k; // leading dimension in B, ldb>=max(1,k)
     const int ldc = m; // leading dimension in C, ldc>=max(1,m)
-
-    CALL_CUBLAS( cublasCreate(&handle) );
-
-    const real_t alpha = 1.0;
-    const real_t beta  = 0.0;
 
 #if USE_DOUBLE
 
@@ -72,7 +72,7 @@ void kronos::CublasGemm::compute()
 
 }
 
-void kronos::CublasGemm::terminate()
+void kronos::CublasGemm::copy_out()
 {
     unsigned int mem_size_C = sizeof(real_t) * size_C;
 

@@ -28,8 +28,17 @@ kronos::Gemm::Gemm() :
 
 void kronos::Gemm::setup(const boost::filesystem::path& p)
 {
+#if 0
 
-#if 1
+    const size_t lat = 1024; ///< latitude
+    const size_t trc = 1024; ///< truncation
+    const size_t fld = 1024; ///< field
+
+    mm_ = new MData( lat, trc, fld );
+
+#endif
+
+#if 0
 
     const size_t lat = 2; ///< latitude
     const size_t trc = 3; ///< truncation
@@ -78,7 +87,9 @@ void kronos::Gemm::setup(const boost::filesystem::path& p)
     Cr(0,3) = 42;
     Cr(1,3) = 84;
 //
-#else
+#endif
+
+#if 1
     const size_t  wn = 639; ///< wave number
 
     const size_t lat = 442; ///< latitude
@@ -134,27 +145,36 @@ void kronos::Gemm::run()
 {
     // init
 
+    std::cout << "> copying data to devide" << std::endl;
+
     boost::timer ti;
 
-    this->initiate();
+    this->copy_into();
 
     timers_.copy_in += ti.elapsed();
 
     // compute
 
+    std::cout << "> computing" << std::endl;
+
     boost::timer tr;
 
-    this->compute();
+    for( size_t it = 0; it < 100; ++it)
+    {
+        this->compute();
+        flops_ += mm_->flops();
+    }
 
     timers_.compute += tr.elapsed();
 
-    flops_ += mm_->flops();
 
     // term
 
+    std::cout << "> copying data from devide" << std::endl;
+
     boost::timer tf;
 
-    this->terminate();
+    this->copy_out();
 
     timers_.copy_out += tf.elapsed();
 
@@ -208,13 +228,13 @@ std::string kronos::Gemm::summary()
         << "L2 Norm : " << norm_L2_ << "\n\n"
 
         << "timings\n"
-        << "\t initiate  : " << timers_.copy_in  << " s\n"
-        << "\t compute   : " << timers_.compute  << " s\n"
-        << "\t terminate : " << timers_.copy_out << " s\n"
+        << "\t initiate  : " << std::setw(12) << timers_.copy_in  << " s\n"
+        << "\t compute   : " << std::setw(12) << timers_.compute  << " s\n"
+        << "\t terminate : " << std::setw(12) << timers_.copy_out << " s\n"
         << "quantities\n"
-        << "\t flops     : " << flops_ << "\n"
-        << "\t bytes >   : " << copy_into_ / (1024*1024) << " MB \n"
-        << "\t bytes <   : " << copy_back_ / (1024*1024) << " MB \n"
+        << "\t flops     : " << std::setw(12) << flops_ << "\n"
+        << "\t bytes >   : " << std::setw(12) << copy_into_ / (1024*1024) << " MB \n"
+        << "\t bytes <   : " << std::setw(12) << copy_back_ / (1024*1024) << " MB \n"
         << "rates\n";
     if(flops_)
         ret << "\t flops     : " << flops_  * 1.0e-9f / timers_.compute << " GFlop/s\n";

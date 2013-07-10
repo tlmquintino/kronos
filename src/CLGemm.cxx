@@ -4,7 +4,7 @@ kronos::CLGemm::CLGemm()
 {
 }
 
-void kronos::CLGemm::initiate()
+void kronos::CLGemm::copy_into()
 {
 }
 
@@ -12,6 +12,6 @@ void kronos::CLGemm::compute()
 {
 }
 
-void kronos::CLGemm::terminate()
+void kronos::CLGemm::copy_out()
 {
 }

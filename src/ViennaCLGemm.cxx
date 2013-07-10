@@ -6,7 +6,7 @@ kronos::ViennaCLGemm::ViennaCLGemm()
 {
 }
 
-void kronos::ViennaCLGemm::initiate()
+void kronos::ViennaCLGemm::copy_into()
 {
     const size_t M = mm_->m_;
     const size_t K = mm_->k_;
@@ -31,7 +31,7 @@ void kronos::ViennaCLGemm::compute()
     d_C = viennacl::linalg::prod( d_A, d_B );
 }
 
-void kronos::ViennaCLGemm::terminate()
+void kronos::ViennaCLGemm::copy_out()
 {
     MData::matrix_t& C = mm_->C;
 
