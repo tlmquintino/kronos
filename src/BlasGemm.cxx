@@ -30,6 +30,10 @@ void kronos::BlasGemm::compute()
     int k = mm_->k_;
     int n = mm_->n_;
 
+    int lda = m; // leading dimension in A, lda>=max(1,m)
+    int ldb = k; // leading dimension in B, ldb>=max(1,k)
+    int ldc = m; // leading dimension in C, ldc>=max(1,m)
+
     real_t* A = &mm_->A.data()[0];
     real_t* B = &mm_->B.data()[0];
     real_t* C = &mm_->C.data()[0];
@@ -38,9 +42,9 @@ void kronos::BlasGemm::compute()
 //        C[i] = 0.;
 
 #if USE_DOUBLE
-    dgemm_( "n", "n", &m, &n, &k, &alpha, A, &k, B, &n, &beta, C, &n );
+    dgemm_( "n", "n", &m, &n, &k, &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
 #else
-    sgemm_( "n", "n", &m, &n, &k, &alpha, A, &k, B, &n, &beta, C, &n );
+    sgemm_( "n", "n", &m, &n, &k, &alpha, A, &lda, B, &ldb, &beta, C, &ldc );
 #endif
 
 }

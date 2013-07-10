@@ -16,6 +16,10 @@ void kronos::MKLGemm::compute()
     const int k = mm_->k_;
     const int n = mm_->n_;
 
+    const int lda = m; // leading dimension in A, lda>=max(1,m)
+    const int ldb = k; // leading dimension in B, ldb>=max(1,k)
+    const int ldc = m; // leading dimension in C, ldc>=max(1,m)
+
     const real_t* A = &mm_->A.data()[0];
     const real_t* B = &mm_->B.data()[0];
           real_t* C = &mm_->C.data()[0];
@@ -25,5 +29,5 @@ void kronos::MKLGemm::compute()
 //    mkl_domain_set_num_threads ( 4, MKL_BLAS );
 
     cblas_dgemm( CblasColMajor, CblasNoTrans, CblasNoTrans,
-                 m, n, k, alpha, A, k, B, n, beta, C, n);
+                 m, n, k, alpha, A, lda, B, ldb, beta, C, ldc);
 }
