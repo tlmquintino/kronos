@@ -39,8 +39,6 @@ char * load_program_source(const char *filename);
 
 void opencl_check_error( cl_int& error_code, const char * file, int line);
 
-#define CALL_CL(e) \
-{ opencl_check_error( e, ) \
-}
+#define CALL_CL(e) opencl_check_error( e, #e, __FILE__, __LINE__ )
 
 #endif

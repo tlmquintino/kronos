@@ -1,3 +1,10 @@
+#include <cstdio>
+#include <cstring>
+#include <sys/stat.h>
+
+#include <iostream>
+#include <sstream>
+
 #include "kronos_opencl.h"
 
 char* opencl_errstring(cl_int err)
