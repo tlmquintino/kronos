@@ -63,65 +63,83 @@ int main(int argc, char * argv[])
           ("help", "produce help message")
           ("test",   boost::program_options::value<std::string>() , "directory with test data" )
           ("cpu",      "run with native code")
-        #ifdef CUDA_FOUND
           ("cuda",     "run with cuda code")
           ("cublas",   "run with cuda blas dgemm")
-        #endif
-        #ifdef MKL_FOUND
           ("mkl",      "run with mkl blas dgemm")
-        #endif
-        #ifdef ViennaCL_FOUND
           ("viennacl", "run with viennacl dgemm")
-        #endif
-        #ifdef OPENCL_FOUND
           ("cl",       "run with opencl code")
-        #endif
-        #ifdef BLAS_FOUND
           ("blas",     "run with blas code")
-        #endif
           ;
 
   boost::program_options::variables_map vm;
-  boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
+
+  try
+  {
+    boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
+  }
+  catch (...)
+  {
+      std::cout << desc << std::endl;
+      ::exit(1);
+  }
+
   boost::program_options::notify(vm);
 
   if (vm.count("help")) {
       std::cout << desc << std::endl;
-      return 1;
+      ::exit(1);
   }
 
   if(!vm.count("test")) {
       std::cout << "error: no test data directory\n" << std::endl;
       std::cout << desc << std::endl;
-      return 1;
+      ::exit(1);
   }
 
   boost::filesystem::path tpath( vm["test"].as<std::string>() );
 
   if( vm.count("cpu") ) run( new CpuGemm(), tpath );
 
+  if( vm.count("cuda") )
 #ifdef CUDA_FOUND
-  if( vm.count("cuda") ) run( new CudaGemm(), tpath );
+    run( new CudaGemm(), tpath );
+#else
+      std::cerr << "cuda not available -- aborting" << std::endl, ::exit(1);
 #endif
 
+  if( vm.count("cublas") )
 #ifdef CUDA_FOUND
-  if( vm.count("cublas") ) run( new CublasGemm(), tpath );
+    run( new CublasGemm(), tpath );
+#else
+      std::cerr << "cublas not available -- aborting" << std::endl, ::exit(1);
 #endif
 
+if( vm.count("viennacl") )
 #ifdef ViennaCL_FOUND
-  if( vm.count("viennacl") ) run( new ViennaCLGemm(), tpath );
+   run( new ViennaCLGemm(), tpath );
+#else
+      std::cerr << "viennacl not available -- aborting" << std::endl, ::exit(1);
 #endif
 
+if( vm.count("mkl") )
 #ifdef MKL_FOUND
-  if( vm.count("mkl") ) run( new MKLGemm(), tpath );
+   run( new MKLGemm(), tpath );
+#else
+      std::cerr << "mkl not available -- aborting" << std::endl, ::exit(1);
 #endif
 
+if( vm.count("cl") )
 #ifdef OPENCL_FOUND
-  if( vm.count("cl") ) run( new CLGemm(), tpath );
+   run( new CLGemm(), tpath );
+#else
+      std::cerr << "opencl not available -- aborting" << std::endl, ::exit(1);
 #endif
 
+if( vm.count("blas") )
 #ifdef BLAS_FOUND
-  if( vm.count("blas") ) run( new BlasGemm(), tpath );
+   run( new BlasGemm(), tpath );
+#else
+      std::cerr << "blas not available -- aborting" << std::endl, ::exit(1);
 #endif
 
 }
