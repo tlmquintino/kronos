@@ -38,21 +38,11 @@ void kronos::CublasGemm::initiate()
 
     real_t* A = &mm_->A.data()[0];
     real_t* B = &mm_->B.data()[0];
-    real_t* C = &mm_->C.data()[0];
-
-//    for( size_t i; i < size_C; ++i )
-//        C[i] = 0.;
 
     CALL_CUDA( cudaMemcpy(d_A, A, mem_size_A, cudaMemcpyHostToDevice) );
     CALL_CUDA( cudaMemcpy(d_B, B, mem_size_B, cudaMemcpyHostToDevice) );
-//    CALL_CUDA( cudaMemcpy(d_C, C, mem_size_C, cudaMemcpyHostToDevice) );
 
     copy_into_ += mem_size_A + mem_size_B;
-
-//    CALL_CUDA( cudaMemcpy(A, d_A, mem_size_A, cudaMemcpyDeviceToHost) );
-//    CALL_CUDA( cudaMemcpy(B, d_B, mem_size_B, cudaMemcpyDeviceToHost) );
-//    CALL_CUDA( cudaMemcpy(C, d_C, mem_size_C, cudaMemcpyDeviceToHost) );
-
 }
 
 void kronos::CublasGemm::compute()
@@ -65,10 +55,7 @@ void kronos::CublasGemm::compute()
     const int ldb = k; // leading dimension in B, ldb>=max(1,k)
     const int ldc = m; // leading dimension in C, ldc>=max(1,m)
 
-    cublasStatus_t ret;
-
-    if( (ret = cublasCreate(&handle)) != CUBLAS_STATUS_SUCCESS )
-        printf("cublasCreate returned error code %d, line(%d)\n", ret, __LINE__), exit(EXIT_FAILURE);
+    CALL_CUBLAS( cublasCreate(&handle) );
 
     const real_t alpha = 1.0;
     const real_t beta  = 0.0;

@@ -62,6 +62,7 @@ int main(int argc, char * argv[])
   desc.add_options()
           ("help", "produce help message")
           ("test",   boost::program_options::value<std::string>() , "directory with test data" )
+//
           ("cpu",      "run with native code")
           ("cuda",     "run with cuda code")
           ("cublas",   "run with cuda blas dgemm")
