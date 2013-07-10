@@ -1,6 +1,8 @@
 #ifndef kronos_CLGemm_h
 #define kronos_CLGemm_h
 
+#include "kronos_opencl.h"
+
 #include "Gemm.h"
 
 namespace kronos {
@@ -18,6 +20,7 @@ public:
     void initiate();
     void compute();
     void terminate();
+
 };
 
 //------------------------------------------------------------------------------------------

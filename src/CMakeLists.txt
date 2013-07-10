@@ -15,7 +15,7 @@ if( Boost_FOUND )
     endif()
 
     if( OPENCL_FOUND )
-         add_library( clgemm CLGemm.cxx CLGemm.h )
+         add_library( clgemm CLGemm.cxx CLGemm.h kronos_opencl.h kronos_opencl.cxx )
          target_link_libraries( gemm clgemm )
     endif()
 

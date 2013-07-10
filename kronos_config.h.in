@@ -11,16 +11,6 @@
 
 #if USE_DOUBLE
 
-#ifdef OPENCL_FOUND
-#if defined(cl_khr_fp64)     /* Khronos extension available? */
-#pragma OPENCL EXTENSION cl_khr_fp64 : enable
-#elif defined(cl_amd_fp64)   /* AMD extension available? */
-#pragma OPENCL EXTENSION cl_amd_fp64 : enable
-//#else
-//#error no double extension available
-#endif
-#endif /* OPENCL_FOUND */
-
 typedef double real_t;
 
 #else
