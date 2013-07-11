@@ -20,7 +20,11 @@ public: // methods
     virtual std::string name() = 0;
 
     /// loads the test data into memory
-    void setup(const boost::filesystem::path& t);
+    void setup(const boost::filesystem::path& p,
+               const size_t wn,
+               const size_t lat,
+               const size_t trc,
+               const std::vector<size_t>& fields );
 
     /// releases the test data from memory
     void run();
@@ -70,8 +74,6 @@ protected: // members
     double copy_into_;
     double copy_back_;
     double flops_;
-
-    boost::filesystem::path test_;
 
     MData* md;
 

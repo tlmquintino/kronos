@@ -2,6 +2,7 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include <numeric>
 
 #include <boost/timer.hpp>
 
@@ -28,7 +29,11 @@ kronos::Gemm::Gemm() :
     timers_.copy_out = 0.;
 }
 
-void kronos::Gemm::setup(const boost::filesystem::path& p)
+void kronos::Gemm::setup( const boost::filesystem::path& p,
+                          const size_t wn,
+                          const size_t lat,
+                          const size_t trc,
+                          const std::vector<size_t>& fields )
 {
 #if 0
 
@@ -92,30 +97,28 @@ void kronos::Gemm::setup(const boost::filesystem::path& p)
 #endif
 
 #if 1
-    const size_t  wn = 1258; ///< wave number
 
-    const size_t lat = 100;  ///< latitude
-    const size_t trc =  11;  ///< truncation
-    const size_t fld = 420;  ///< field
+    size_t fld = std::accumulate(fields.begin(),fields.end(),0);
 
     md = new MData( lat, trc, fld );
 
-    test_ = p;
-
     std::ostringstream fa_name;
-    fa_name << "data/antisymmetric_matrix_" << std::setw(5) << std::setfill('0') << wn
-            << "_latitude_x_truncation_"    << std::setw(5) << std::setfill('0') << lat
-            << "_"                          << std::setw(5) << std::setfill('0') << trc;
+    fa_name << p.string()
+            << "/antisymmetric_matrix_" << std::setw(5) << std::setfill('0') << wn
+            << "_latitude_x_truncation_"<< std::setw(5) << std::setfill('0') << lat
+            << "_"                      << std::setw(5) << std::setfill('0') << trc;
 
     std::ostringstream fb_name;
-    fb_name << "data/antisymmetric_matrix_" << std::setw(5) << std::setfill('0') << wn
-            << "_truncation_x_field_"       << std::setw(5) << std::setfill('0') << trc
-            << "_"                          << std::setw(5) << std::setfill('0') << fld;
+    fb_name << p.string()
+            << "/antisymmetric_matrix_" << std::setw(5) << std::setfill('0') << wn
+            << "_truncation_x_field_"   << std::setw(5) << std::setfill('0') << trc
+            << "_"                      << std::setw(5) << std::setfill('0') << fld;
 
     std::ostringstream fc_name;
-    fc_name << "data/antisymmetric_matrix_" << std::setw(5) << std::setfill('0') << wn
-            << "_latitude_x_field_"         << std::setw(5) << std::setfill('0') << lat
-            << "_"                          << std::setw(5) << std::setfill('0') << fld;
+    fc_name << p.string()
+            << "/antisymmetric_matrix_" << std::setw(5) << std::setfill('0') << wn
+            << "_latitude_x_field_"     << std::setw(5) << std::setfill('0') << lat
+            << "_"                      << std::setw(5) << std::setfill('0') << fld;
     // A
 
     std::ifstream fa;

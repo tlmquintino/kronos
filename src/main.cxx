@@ -3,6 +3,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/timer.hpp>
 #include <boost/program_options.hpp>
+#include <boost/assign/std/vector.hpp>
 
 #include "kronos_config.h"
 
@@ -32,12 +33,20 @@
 #endif
 
 using namespace kronos;
+using namespace boost::assign;
 
 //-----------------------------------------------------------------------------
 
 void run( Gemm* gemm, const boost::filesystem::path& tpath )
 {
-    gemm->setup(tpath);
+    std::vector<size_t> fields;
+    fields += 2,4,68,70,136,140,340,344,350,408,412,420;
+
+    size_t wn  = 10;
+    size_t lat = 639;
+    size_t trc = 635;
+
+    gemm->setup(tpath,wn,lat,trc,fields);
 
     gemm->run();
 
