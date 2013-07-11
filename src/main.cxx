@@ -42,19 +42,38 @@ void run( Gemm* gemm, const boost::filesystem::path& tpath )
     std::vector<size_t> fields;
     fields += 2,4,68,70,136,140,340,344,350,408,412,420;
 
-    size_t wn  = 10;
-    size_t lat = 639;
-    size_t trc = 635;
+    // some issues with these set of fields ???
 
-    gemm->setup(tpath,wn,lat,trc,fields);
+    // wn [6,10,11] lat 639 trc 635 f[408]
+    // wn 7 lat 640 trc 637 f[68,408]
 
-    gemm->run();
+    size_t wn  = 6;
+    size_t lat = 640;
+    size_t trc = 637;
 
-    gemm->verify();
+    for( size_t f = 0; f < fields.size(); ++f )
+    {
+        std::vector<size_t> f1;
+        f1 += fields[f];
 
-    gemm->teardown();
+        std::cout << "wn " << wn << "   "
+                  << "C(" << lat << "," << fields[f] << ")"
+                  << " = "
+                  << "A(" << lat << "," << trc << ")"
+                  << " * "
+                  << "B(" << trc << "," << fields[f] << ")"
+                  << " " << std::flush;
 
-    std::cout << gemm->summary() << std::endl;
+        gemm->setup(tpath,wn,lat,trc,f1);
+
+        gemm->run();
+
+        gemm->verify();
+
+        gemm->teardown();
+
+        std::cout << gemm->summary() << std::endl;
+    }
 
     delete gemm;
 }
