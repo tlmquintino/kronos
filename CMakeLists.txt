@@ -1,4 +1,6 @@
 # TODO:
+#   * set wn and guess remaing parameters from file name
+#   * add high resolution timer
 #   * inspect double compute capability on GPU
 #   * try out aligning memory to 64 boundaries ?
 #   * streamming?
