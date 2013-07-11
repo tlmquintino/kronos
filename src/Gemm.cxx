@@ -92,11 +92,11 @@ void kronos::Gemm::setup(const boost::filesystem::path& p)
 #endif
 
 #if 1
-    const size_t  wn = 639; ///< wave number
+    const size_t  wn = 1258; ///< wave number
 
-    const size_t lat = 442; ///< latitude
-    const size_t trc = 321; ///< truncation
-    const size_t fld = 420; ///< field
+    const size_t lat = 100;  ///< latitude
+    const size_t trc =  11;  ///< truncation
+    const size_t fld = 420;  ///< field
 
     md = new MData( lat, trc, fld );
 
@@ -151,7 +151,6 @@ void kronos::Gemm::setup(const boost::filesystem::path& p)
 
 void kronos::Gemm::run()
 {
-
     boost::timer ti;
     boost::timer tc;
     boost::timer tf;
