@@ -102,50 +102,82 @@ void kronos::Gemm::setup( const boost::filesystem::path& p,
 
     md = new MData( lat, trc, fld );
 
+    size_A = md->A.size1() * md->A.size2();
+    size_B = md->B.size1() * md->B.size2();
+    size_C = md->C.size1() * md->C.size2();
+
+    // load A
+
     std::ostringstream fa_name;
     fa_name << p.string()
             << "/antisymmetric_matrix_" << std::setw(5) << std::setfill('0') << wn
             << "_latitude_x_truncation_"<< std::setw(5) << std::setfill('0') << lat
             << "_"                      << std::setw(5) << std::setfill('0') << trc;
 
-    std::ostringstream fb_name;
-    fb_name << p.string()
-            << "/antisymmetric_matrix_" << std::setw(5) << std::setfill('0') << wn
-            << "_truncation_x_field_"   << std::setw(5) << std::setfill('0') << trc
-            << "_"                      << std::setw(5) << std::setfill('0') << fld;
-
-    std::ostringstream fc_name;
-    fc_name << p.string()
-            << "/antisymmetric_matrix_" << std::setw(5) << std::setfill('0') << wn
-            << "_latitude_x_field_"     << std::setw(5) << std::setfill('0') << lat
-            << "_"                      << std::setw(5) << std::setfill('0') << fld;
-    // A
-
     std::ifstream fa;
     fa.open( fa_name.str().c_str(), ios::in | ios::binary );
     MData::load( md->A , fa, 4 ); /* skip 4 bytes of fortran unformated */
     fa.close();
 
-    // B
+    // loop over fields
 
-    std::ifstream fb;
-    fb.open( fb_name.str().c_str(), ios::in | ios::binary );
-    MData::load( md->B , fb, 4 ); /* skip 4 bytes of fortran unformated */
-    fb.close();
+    MData::Block bb;
+    MData::Block bc;
 
-    // Cr
+    bb.begin1 = 0;
+    bb.end1   = md->B.size1();
+    bb.begin2 = 0;
+    bb.end2   = 0;
 
-    std::ifstream fc;
-    fc.open( fc_name.str().c_str(), ios::in | ios::binary );
-    MData::load( md->Cr , fc, 4 ); /* skip 4 bytes of fortran unformated */
-    fc.close();
+    bc.begin1 = 0;
+    bc.end1   = md->C.size1();
+    bc.begin2 = 0;
+    bc.end2   = 0;
+
+    for( size_t f = 0; fields.size(); ++f )
+    {
+        size_t fld = fields[f];
+
+        std::cout << "reading B(" << bb.begin1 << ":" << bb.end1 << "," << bb.begin2 << ":" << bb.end2 << ")" << std::endl;
+
+        // load series of trc x field matrics to form B
+
+        bb.begin2  = bb.end2;
+        bb.end2   += fld;
+
+        std::cout << "reading B(" << bb.begin1 << ":" << bb.end1 << "," << bb.begin2 << ":" << bb.end2 << ")" << std::endl;
+
+        std::ostringstream fb_name;
+        fb_name << p.string()
+                << "/antisymmetric_matrix_" << std::setw(5) << std::setfill('0') << wn
+                << "_truncation_x_field_"   << std::setw(5) << std::setfill('0') << trc
+                << "_"                      << std::setw(5) << std::setfill('0') << fld;
+
+        std::ifstream fb;
+        fb.open( fb_name.str().c_str(), ios::in | ios::binary );
+        MData::load( md->B, bb, fb, 4 ); /* skip 4 bytes of fortran unformated */
+        fb.close();
+
+        // load series of lat x field matrics to form Cr
+
+        bc.begin2  = bc.end2;
+        bc.end2   += fld;
+
+        std::cout << "reading C(" << bc.begin1 << ":" << bc.end1 << "," << bc.begin2 << ":" << bc.end2 << ")" << std::endl;
+
+        std::ostringstream fc_name;
+        fc_name << p.string()
+                << "/antisymmetric_matrix_" << std::setw(5) << std::setfill('0') << wn
+                << "_latitude_x_field_"     << std::setw(5) << std::setfill('0') << lat
+                << "_"                      << std::setw(5) << std::setfill('0') << fld;
+
+        std::ifstream fc;
+        fc.open( fc_name.str().c_str(), ios::in | ios::binary );
+        MData::load( md->Cr, bc, fc, 4 ); /* skip 4 bytes of fortran unformated */
+        fc.close();
+    }
 
 #endif
-
-    size_A = md->A.size1() * md->A.size2();
-    size_B = md->B.size1() * md->B.size2();
-    size_C = md->C.size1() * md->C.size2();
-
 
     std::cout << "A(" << md->m_ << "," << md->k_ << ") * B(" << md->k_ << "," << md->n_ << ")" << std::endl;
 

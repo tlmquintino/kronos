@@ -10,7 +10,10 @@
 
 //------------------------------------------------------------------------------------------
 
-void kronos::MData::load(kronos::MData::matrix_t &m, std::istream &in, size_t skip, bool be, bool cm )
+void kronos::MData::load( kronos::MData::matrix_t &m,
+                          std::istream &in,
+                          size_t skip,
+                          bool be, bool cm )
 {
     real_t b;
 
@@ -43,6 +46,58 @@ void kronos::MData::load(kronos::MData::matrix_t &m, std::istream &in, size_t sk
     {
         for (size_t i = 0; i < m.size1 (); ++i)
             for (size_t j = 0; j < m.size2 (); ++j)
+            {
+                if( ! in.read( reinterpret_cast<char*>(&b), sizeof(real_t)) )
+                    std::cerr << "error reading matrix" << std::endl, ::abort();
+
+#ifdef BOOST_LITTLE_ENDIAN
+            if( be )
+                kronos::reverse_endian( &b );
+#endif
+
+#ifdef BOOST_BIG_ENDIAN
+            if( ! be )
+                kronos::reverse_endian( &b );
+#endif
+            m(i, j) = b;
+
+            }
+    }
+}
+
+void kronos::MData::load(kronos::MData::matrix_t &m, const kronos::MData::Block& bm, std::istream &in, size_t skip, bool be, bool cm)
+{
+    real_t b;
+
+    // skip first n bytes
+    if(skip)
+        in.read( reinterpret_cast<char*>(&b), skip);
+
+    if( cm ) /* column-major ordering */
+    {
+        for (size_t j = bm.begin2; j < bm.end2; ++j)
+            for (size_t i = bm.begin1; i < bm.end1; ++i)
+            {
+                if( ! in.read( reinterpret_cast<char*>(&b), sizeof(real_t)) )
+                    std::cerr << "error reading matrix" << std::endl, ::abort();
+
+#ifdef BOOST_LITTLE_ENDIAN
+            if( be )
+                kronos::reverse_endian( &b );
+#endif
+
+#ifdef BOOST_BIG_ENDIAN
+            if( ! be )
+                kronos::reverse_endian( &b );
+#endif
+            m(i, j) = b;
+
+            }
+    }
+    else /* row-major ordering */
+    {
+        for (size_t i = bm.begin1; i < bm.end1; ++i)
+            for (size_t j = bm.begin2; j < bm.end2; ++j)
             {
                 if( ! in.read( reinterpret_cast<char*>(&b), sizeof(real_t)) )
                     std::cerr << "error reading matrix" << std::endl, ::abort();

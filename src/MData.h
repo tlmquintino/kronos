@@ -13,6 +13,13 @@ struct MData
 {
     typedef boost::numeric::ublas::matrix< real_t, boost::numeric::ublas::column_major, std::vector<real_t> > matrix_t;
 
+    struct Block {
+        size_t begin1;
+        size_t begin2;
+        size_t end1;
+        size_t end2;
+    };
+
     MData( size_t m, size_t k, size_t n ) :
         m_(m), k_(k), n_(n),
         A(m,k),
@@ -37,6 +44,11 @@ struct MData
     /// @param be matrix is encoded in big endian
     /// @param cm matrix is serialized in column-major
     static void load( matrix_t& m, std::istream& in, size_t skip = 0, bool be = true, bool cm = true );
+
+    /// loads a matrix from a stream
+    /// @param be matrix is encoded in big endian
+    /// @param cm matrix is serialized in column-major
+    static void load( matrix_t& m, const Block& b, std::istream& in, size_t skip = 0, bool be = true, bool cm = true );
 
     /// print a matrix in ascii
     static void print( const matrix_t& m,  std::ostream& out , size_t line = 0, size_t col = 0 );
