@@ -12,17 +12,17 @@ void kronos::MKLGemm::compute()
     const real_t alpha  = 1.0;
     const real_t beta   = 0.0;
 
-    const int m = mm_->m_;
-    const int k = mm_->k_;
-    const int n = mm_->n_;
+    const int m = md->m_;
+    const int k = md->k_;
+    const int n = md->n_;
 
     const int lda = m; // leading dimension in A, lda>=max(1,m)
     const int ldb = k; // leading dimension in B, ldb>=max(1,k)
     const int ldc = m; // leading dimension in C, ldc>=max(1,m)
 
-    const real_t* A = &mm_->A.data()[0];
-    const real_t* B = &mm_->B.data()[0];
-          real_t* C = &mm_->C.data()[0];
+    const real_t* A = &md->A.data()[0];
+    const real_t* B = &md->B.data()[0];
+          real_t* C = &md->C.data()[0];
 
 //    std::cout << "max threads : " << MKL_Get_Max_Threads() << std::endl;
 //    MKL_Set_Num_Threads(8);

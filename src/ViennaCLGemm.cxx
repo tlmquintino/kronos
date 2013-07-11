@@ -6,24 +6,29 @@ kronos::ViennaCLGemm::ViennaCLGemm()
 {
 }
 
-void kronos::ViennaCLGemm::copy_into()
+void kronos::ViennaCLGemm::initiate_env()
 {
-    const size_t M = mm_->m_;
-    const size_t K = mm_->k_;
-    const size_t N = mm_->n_;
+    const size_t M = md->m_;
+    const size_t K = md->k_;
+    const size_t N = md->n_;
 
-    MData::matrix_t& A = mm_->A;
-    MData::matrix_t& B = mm_->B;
+    MData::matrix_t& A = md->A;
+    MData::matrix_t& B = md->B;
 
     d_A.resize( M, K );
     d_B.resize( K, N );
     d_C.resize( M, N );
 
     viennacl::copy( A,  d_A );
-    viennacl::copy( B,  d_B );
+}
 
-    copy_into_ += A.size1() * A.size2() * sizeof(real_t) +
-                  B.size1() * B.size2() * sizeof(real_t);
+void kronos::ViennaCLGemm::copy_in()
+{
+    MData::matrix_t& B = md->B;
+
+    viennacl::copy( B, d_B );
+
+    copy_into_ += size_B * sizeof(real_t);
 }
 
 void kronos::ViennaCLGemm::compute()
@@ -33,9 +38,16 @@ void kronos::ViennaCLGemm::compute()
 
 void kronos::ViennaCLGemm::copy_out()
 {
-    MData::matrix_t& C = mm_->C;
+    MData::matrix_t& C = md->C;
 
     viennacl::copy( d_C,  C );
 
-    copy_back_ += C.size1() * C.size2() * sizeof(real_t);
+    copy_back_ += size_C * sizeof(real_t);
+}
+
+void kronos::ViennaCLGemm::terminate_env()
+{
+    d_A.clear();
+    d_B.clear();
+    d_C.clear();
 }

@@ -19,7 +19,9 @@ kronos::Gemm::Gemm() :
     norm_L2_(0.),
     copy_into_(0.),
     copy_back_(0.),
-    flops_(0.)
+    flops_(0.),
+    steps_hour_(6),
+    forecast_days_(10)
 {
     timers_.copy_in  = 0.;
     timers_.compute  = 0.;
@@ -96,7 +98,7 @@ void kronos::Gemm::setup(const boost::filesystem::path& p)
     const size_t trc = 321; ///< truncation
     const size_t fld = 420; ///< field
 
-    mm_ = new MData( lat, trc, fld );
+    md = new MData( lat, trc, fld );
 
     test_ = p;
 
@@ -118,75 +120,83 @@ void kronos::Gemm::setup(const boost::filesystem::path& p)
 
     std::ifstream fa;
     fa.open( fa_name.str().c_str(), ios::in | ios::binary );
-    MData::load( mm_->A , fa, 4 ); /* skip 4 bytes of fortran unformated */
+    MData::load( md->A , fa, 4 ); /* skip 4 bytes of fortran unformated */
     fa.close();
 
     // B
 
     std::ifstream fb;
     fb.open( fb_name.str().c_str(), ios::in | ios::binary );
-    MData::load( mm_->B , fb, 4 ); /* skip 4 bytes of fortran unformated */
+    MData::load( md->B , fb, 4 ); /* skip 4 bytes of fortran unformated */
     fb.close();
 
     // Cr
 
     std::ifstream fc;
     fc.open( fc_name.str().c_str(), ios::in | ios::binary );
-    MData::load( mm_->Cr , fc, 4 ); /* skip 4 bytes of fortran unformated */
+    MData::load( md->Cr , fc, 4 ); /* skip 4 bytes of fortran unformated */
     fc.close();
 
 #endif
 
-    std::cout << "A(" << mm_->m_ << "," << mm_->k_ << ") * B(" << mm_->k_ << "," << mm_->n_ << ")" << std::endl;
+    size_A = md->A.size1() * md->A.size2();
+    size_B = md->B.size1() * md->B.size2();
+    size_C = md->C.size1() * md->C.size2();
 
+
+    std::cout << "A(" << md->m_ << "," << md->k_ << ") * B(" << md->k_ << "," << md->n_ << ")" << std::endl;
+
+    initiate_env();
 }
 
 void kronos::Gemm::run()
 {
-    // init
-
-    std::cout << "> copying data to devide" << std::endl;
 
     boost::timer ti;
-
-    this->copy_into();
-
-    timers_.copy_in += ti.elapsed();
-
-    // compute
-
-    std::cout << "> computing" << std::endl;
-
-    boost::timer tr;
-
-    for( size_t it = 0; it < 100; ++it)
-    {
-        this->compute();
-        flops_ += mm_->flops();
-    }
-
-    timers_.compute += tr.elapsed();
-
-
-    // term
-
-    std::cout << "> copying data from devide" << std::endl;
-
+    boost::timer tc;
     boost::timer tf;
 
-    this->copy_out();
+    for( size_t step = 1; step <= steps_hour_ * 24 * forecast_days_; ++step)
+    {
+        if( step % (steps_hour_ * 24) == 0 )
+             std::cout << "> step [" << step << "]" << std::endl;
 
-    timers_.copy_out += tf.elapsed();
 
+        // std::cout << "> copying data to devide" << std::endl;
+
+        ti.restart();
+
+        copy_in();
+
+        timers_.copy_in += ti.elapsed();
+
+        //  std::cout << "> computing" << std::endl;
+
+        tc.restart();
+
+        compute();
+
+        timers_.compute += tc.elapsed();
+
+        flops_ += md->flops();
+
+        //  std::cout << "> copying data from devide" << std::endl;
+
+        tf.restart();
+
+        copy_out();
+
+        timers_.copy_out += tf.elapsed();
+    }
 }
 
 bool kronos::Gemm::verify()
 {
-    const size_t M = mm_->m_;
-    const size_t N = mm_->n_;
+    const size_t M = md->m_;
+    const size_t N = md->n_;
 
-    const real_t* C  = &mm_->C.data()[0];
-    const real_t* Cr = &mm_->Cr.data()[0];
+    const real_t* C  = &md->C.data()[0];
+    const real_t* Cr = &md->Cr.data()[0];
 
     real_t norm = 0.;
     for( size_t i = 0; i < M * N; ++i )
@@ -197,31 +207,35 @@ bool kronos::Gemm::verify()
 
     norm_L2_ += std::sqrt( norm ) / ( M * N );
 
-    std::cout << "--- A --------------------------------------------" << std::endl;
-    MData::print( mm_->A , std::cout, 5, 5 );
-    std::cout << "--------------------------------------------------" << std::endl;
+//    std::cout << "--- A --------------------------------------------" << std::endl;
+//    MData::print( md->A , std::cout, 5, 5 );
+//    std::cout << "--------------------------------------------------" << std::endl;
 
-    std::cout << "--- B --------------------------------------------" << std::endl;
-    MData::print( mm_->B , std::cout, 5, 5 );
-    std::cout << "--------------------------------------------------" << std::endl;
+//    std::cout << "--- B --------------------------------------------" << std::endl;
+//    MData::print( md->B , std::cout, 5, 5 );
+//    std::cout << "--------------------------------------------------" << std::endl;
 
-    std::cout << "--- C --------------------------------------------" << std::endl;
-    MData::print( mm_->C , std::cout, 5, 5 );
-    std::cout << "--------------------------------------------------" << std::endl;
+//    std::cout << "--- C --------------------------------------------" << std::endl;
+//    MData::print( md->C , std::cout, 5, 5 );
+//    std::cout << "--------------------------------------------------" << std::endl;
 
-    std::cout << "--- Cr --------------------------------------------" << std::endl;
-    MData::print( mm_->Cr , std::cout, 5, 5 );
-    std::cout << "--------------------------------------------------" << std::endl;
+//    std::cout << "--- Cr --------------------------------------------" << std::endl;
+//    MData::print( md->Cr , std::cout, 5, 5 );
+//    std::cout << "--------------------------------------------------" << std::endl;
 }
 
 void kronos::Gemm::teardown()
 {
-    delete mm_;
+    terminate_env();
+
+    delete md;
 }
 
 std::string kronos::Gemm::summary()
 {
     std::ostringstream ret;
+
+    double sumt = timers_.copy_in + timers_.compute + timers_.copy_out;
 
     ret << "["  << this->name() << "]\n\n"
 
@@ -231,17 +245,21 @@ std::string kronos::Gemm::summary()
         << "\t initiate  : " << std::setw(12) << timers_.copy_in  << " s\n"
         << "\t compute   : " << std::setw(12) << timers_.compute  << " s\n"
         << "\t terminate : " << std::setw(12) << timers_.copy_out << " s\n"
+        << "\t sum       : " << std::setw(12) << sumt << " s\n"
         << "quantities\n"
         << "\t flops     : " << std::setw(12) << flops_ << "\n"
         << "\t bytes >   : " << std::setw(12) << copy_into_ / (1024*1024) << " MB \n"
         << "\t bytes <   : " << std::setw(12) << copy_back_ / (1024*1024) << " MB \n"
         << "rates\n";
+
     if(flops_)
-        ret << "\t flops     : " << flops_  * 1.0e-9f / timers_.compute << " GFlop/s\n";
+        ret << "\t flops     : " << std::setw(12) << flops_  * 1.0e-9f / timers_.compute << " GFlop/s\n";
+    if(flops_)
+        ret << "\t flops <>  : " << std::setw(12) << flops_  * 1.0e-9f / sumt << " GFlop/s\n";
     if(copy_into_)
-        ret << "\t bytes >   : " << copy_into_ / (1024*1024) / timers_.copy_in << " MB/s\n";
+        ret << "\t bytes >   : " << std::setw(12) << copy_into_ / (1024*1024) / timers_.copy_in << " MB/s\n";
     if(copy_back_)
-        ret << "\t bytes >   : " << copy_back_ / (1024*1024) / timers_.copy_out << " MB/s\n";
+        ret << "\t bytes <   : " << std::setw(12) << copy_back_ / (1024*1024) / timers_.copy_out << " MB/s\n";
 
     return ret.str();
 }

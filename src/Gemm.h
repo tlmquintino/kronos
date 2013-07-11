@@ -36,23 +36,34 @@ public: // methods
 
 protected: // methods
 
-    /// initializes the computing environment, if necessary
-    virtual void copy_into() {}
+    /// initializes the computing environment
+    virtual void initiate_env() {}
+
+    /// preprocess constant computations ( not dependent on iterations )
+    virtual void pre_process() {}
+
+    /// copies in iteration dependent data to device
+    virtual void copy_in() {}
 
     /// performs the actual computations
     virtual void compute() = 0;
 
-    /// terminates the computing environment, if necessary
+    /// copies out iteration dependent data from device
     virtual void copy_out() {}
+
+    /// terminates the computing environment
+    virtual void terminate_env() {}
 
 protected: // members
 
-    struct
+    struct Timers
     {
         double copy_in;
         double compute;
         double copy_out;
-    } timers_ ;
+    };
+
+    Timers timers_;
 
     real_t norm_L2_;
 
@@ -62,8 +73,14 @@ protected: // members
 
     boost::filesystem::path test_;
 
-    MData* mm_;
+    MData* md;
 
+    size_t steps_hour_;
+    size_t forecast_days_;
+
+    size_t size_A;
+    size_t size_B;
+    size_t size_C;
 };
 
 //------------------------------------------------------------------------------------------

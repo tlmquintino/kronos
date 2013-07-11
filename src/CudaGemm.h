@@ -15,15 +15,13 @@ public:
 
     std::string name() { return "cuda"; }
 
-    void copy_into();
+    void initiate_env();
+    void copy_in();
     void compute();
     void copy_out();
+    void terminate_env();
 
 private: // members
-
-    unsigned int size_A;
-    unsigned int size_B;
-    unsigned int size_C;
 
     real_t* d_A; ///< device memory matrix A
     real_t* d_B; ///< device memory matrix B

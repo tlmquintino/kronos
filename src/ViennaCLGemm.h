@@ -19,9 +19,11 @@ public:
 
     std::string name() { return "viennacl"; }
 
-    void copy_into();
+    void initiate_env();
+    void copy_in();
     void compute();
     void copy_out();
+    void terminate_env();
 
 private:
 

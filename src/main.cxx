@@ -37,8 +37,6 @@ using namespace kronos;
 
 void run( Gemm* gemm, const boost::filesystem::path& tpath )
 {
-    boost::timer total;
-
     gemm->setup(tpath);
 
     gemm->run();
@@ -47,8 +45,7 @@ void run( Gemm* gemm, const boost::filesystem::path& tpath )
 
     gemm->teardown();
 
-    std::cout << gemm->summary() << std::endl
-              << "Total time: " << total.elapsed() << " s" << std::endl;
+    std::cout << gemm->summary() << std::endl;
 
     delete gemm;
 }
