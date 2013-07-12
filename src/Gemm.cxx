@@ -35,6 +35,8 @@ void kronos::Gemm::setup( const boost::filesystem::path& p,
                           const size_t trc,
                           const std::vector<size_t>& fields )
 {
+    norm_L2_ = 0.;
+
 #if 0
 
     const size_t lat = 2; ///< latitude
@@ -229,23 +231,23 @@ bool kronos::Gemm::verify()
 
     norm_L2_ += std::sqrt( norm ) / ( M * N );
 
-//    size_t pr = 7;
+    size_t pr = 7;
 
-//    std::cout << "--- A --------------------------------------------" << std::endl;
-//    MData::print( md->A , std::cout, pr, pr );
-//    std::cout << "--------------------------------------------------" << std::endl;
+    std::cout << "--- A --------------------------------------------" << std::endl;
+    MData::print( md->A , std::cout, pr, pr );
+    std::cout << "--------------------------------------------------" << std::endl;
 
-//    std::cout << "--- B --------------------------------------------" << std::endl;
-//    MData::print( md->B , std::cout, pr, pr );
-//    std::cout << "--------------------------------------------------" << std::endl;
+    std::cout << "--- B --------------------------------------------" << std::endl;
+    MData::print( md->B , std::cout, pr, pr );
+    std::cout << "--------------------------------------------------" << std::endl;
 
-//    std::cout << "--- C --------------------------------------------" << std::endl;
-//    MData::print( md->C , std::cout, pr, pr );
-//    std::cout << "--------------------------------------------------" << std::endl;
+    std::cout << "--- C --------------------------------------------" << std::endl;
+    MData::print( md->C , std::cout, pr, pr );
+    std::cout << "--------------------------------------------------" << std::endl;
 
-//    std::cout << "--- Cr --------------------------------------------" << std::endl;
-//    MData::print( md->Cr , std::cout, pr, pr );
-//    std::cout << "--------------------------------------------------" << std::endl;
+    std::cout << "--- Cr --------------------------------------------" << std::endl;
+    MData::print( md->Cr , std::cout, pr, pr );
+    std::cout << "--------------------------------------------------" << std::endl;
 }
 
 void kronos::Gemm::teardown()
