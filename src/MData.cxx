@@ -15,7 +15,7 @@ void kronos::MData::load( kronos::MData::matrix_t &m,
                           size_t skip,
                           bool be, bool cm )
 {
-    real_t b;
+    double b;
 
     // skip first n bytes
     if(skip)
@@ -26,7 +26,7 @@ void kronos::MData::load( kronos::MData::matrix_t &m,
         for (size_t j = 0; j < m.size2 (); ++j)
             for (size_t i = 0; i < m.size1 (); ++i)
             {
-                if( ! in.read( reinterpret_cast<char*>(&b), sizeof(real_t)) )
+                if( ! in.read( reinterpret_cast<char*>(&b), sizeof(double)) )
                     std::cerr << "error reading matrix" << std::endl, ::abort();
 
 #ifdef BOOST_LITTLE_ENDIAN
@@ -47,7 +47,7 @@ void kronos::MData::load( kronos::MData::matrix_t &m,
         for (size_t i = 0; i < m.size1 (); ++i)
             for (size_t j = 0; j < m.size2 (); ++j)
             {
-                if( ! in.read( reinterpret_cast<char*>(&b), sizeof(real_t)) )
+                if( ! in.read( reinterpret_cast<char*>(&b), sizeof(double)) )
                     std::cerr << "error reading matrix" << std::endl, ::abort();
 
 #ifdef BOOST_LITTLE_ENDIAN
@@ -67,7 +67,7 @@ void kronos::MData::load( kronos::MData::matrix_t &m,
 
 void kronos::MData::load(kronos::MData::matrix_t &m, const kronos::MData::Block& bm, std::istream &in, size_t skip, bool be, bool cm)
 {
-    real_t b;
+    double b;
 
     // skip first n bytes
     if(skip)
@@ -78,7 +78,7 @@ void kronos::MData::load(kronos::MData::matrix_t &m, const kronos::MData::Block&
         for (size_t j = bm.begin2; j < bm.end2; ++j)
             for (size_t i = bm.begin1; i < bm.end1; ++i)
             {
-                if( ! in.read( reinterpret_cast<char*>(&b), sizeof(real_t)) )
+                if( ! in.read( reinterpret_cast<char*>(&b), sizeof(double)) )
                     std::cerr << "error reading matrix" << std::endl, ::abort();
 
 #ifdef BOOST_LITTLE_ENDIAN
@@ -99,7 +99,7 @@ void kronos::MData::load(kronos::MData::matrix_t &m, const kronos::MData::Block&
         for (size_t i = bm.begin1; i < bm.end1; ++i)
             for (size_t j = bm.begin2; j < bm.end2; ++j)
             {
-                if( ! in.read( reinterpret_cast<char*>(&b), sizeof(real_t)) )
+                if( ! in.read( reinterpret_cast<char*>(&b), sizeof(double)) )
                     std::cerr << "error reading matrix" << std::endl, ::abort();
 
 #ifdef BOOST_LITTLE_ENDIAN

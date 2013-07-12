@@ -37,7 +37,9 @@ void kronos::Gemm::setup( const boost::filesystem::path& p,
 {
     norm_L2_ = 0.;
 
-#if !defined(USE_DOUBLE)
+//#define USE_SMALL_MATRICES
+
+#ifdef USE_SMALL_MATRICES
 
     const size_t lat = 2; ///< latitude
     const size_t trc = 3; ///< truncation
