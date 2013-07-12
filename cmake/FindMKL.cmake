@@ -5,6 +5,17 @@
 #  MKL_INCLUDE_DIRS  - the MKL include directories
 #  MKL_LIBRARIES     - link these to use MKL
 
+option( MKL_PARALLEL "if mkl shoudl be parallel" OFF )
+
+if( MKL_PARALLEL )
+  set( __mkl_lib_par  MKL_LIB_INTEL_THREAD )
+  set( __mkl_lib_name mkl_intel_thread )
+else()
+  set( __mkl_lib_par MKL_LIB_SEQUENTIAL )
+  set( __mkl_lib_name mkl_sequential )
+endif()
+
+
 if( $ENV{MKL_ROOT} )
 	list( APPEND __MKL_PATHS $ENV{MKL_ROOT} )
 endif()
@@ -28,12 +39,12 @@ if( MKL_INCLUDE_DIR ) # use include dir to find libs
 	  set( __libsfx "" )
 	endif()
 
-    find_library( MKL_LIB_INTEL      NAMES mkl_intel${__libsfx} PATHS ${MKL_LIB_PATH} )
-    find_library( MKL_LIB_SEQUENTIAL NAMES mkl_sequential PATHS ${MKL_LIB_PATH} )
-    find_library( MKL_LIB_CORE       NAMES mkl_core PATHS ${MKL_LIB_PATH} )
+    find_library( MKL_LIB_INTEL         NAMES mkl_intel${__libsfx} PATHS ${MKL_LIB_PATH} )
+    find_library( ${__mkl_lib_par}      NAMES ${__mkl_lib_name} PATHS ${MKL_LIB_PATH} )
+    find_library( MKL_LIB_CORE          NAMES mkl_core PATHS ${MKL_LIB_PATH} )
 
-    if( MKL_LIB_INTEL AND MKL_LIB_SEQUENTIAL AND MKL_LIB_CORE )
-        set( MKL_LIBRARIES ${MKL_LIB_INTEL} ${MKL_LIB_SEQUENTIAL} ${MKL_LIB_CORE} )
+    if( MKL_LIB_INTEL AND ${__mkl_lib_par} AND MKL_LIB_CORE )
+        set( MKL_LIBRARIES ${MKL_LIB_INTEL} ${${__mkl_lib_par}} ${MKL_LIB_CORE} )
     endif()
 
 endif()

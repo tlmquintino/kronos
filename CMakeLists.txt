@@ -1,5 +1,6 @@
 # TODO:
 #   * add high resolution timer
+#   * mkl use all threads
 #   * streamming?
 #   * async mode?
 
