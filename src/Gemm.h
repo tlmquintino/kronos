@@ -38,6 +38,10 @@ public: // methods
     /// provides a summary of the test
     std::string summary();
 
+    void align_to(const size_t &value);
+
+    void steps(const size_t &steps);
+
 protected: // methods
 
     /// initializes the computing environment
@@ -77,12 +81,13 @@ protected: // members
 
     MData* md;
 
-    size_t steps_hour_;
-    size_t forecast_days_;
+    size_t steps_;
 
     size_t size_A;
     size_t size_B;
     size_t size_C;
+
+    size_t align_to_;
 };
 
 //------------------------------------------------------------------------------------------

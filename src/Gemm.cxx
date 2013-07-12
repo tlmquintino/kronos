@@ -21,8 +21,8 @@ kronos::Gemm::Gemm() :
     copy_into_(0.),
     copy_back_(0.),
     flops_(0.),
-    steps_hour_(6),
-    forecast_days_(10)
+    steps_(1),
+    align_to_(0)
 {
     timers_.copy_in  = 0.;
     timers_.compute  = 0.;
@@ -93,7 +93,7 @@ void kronos::Gemm::setup( const boost::filesystem::path& p,
 
     size_t fld = std::accumulate(fields.begin(),fields.end(),0);
 
-    md = new MData( lat, trc, fld );
+    md = new MData( lat, trc, fld, align_to_ );
 
     size_A = md->A.size1() * md->A.size2();
     size_B = md->B.size1() * md->B.size2();
@@ -107,9 +107,15 @@ void kronos::Gemm::setup( const boost::filesystem::path& p,
             << "_latitude_x_truncation_"<< std::setw(5) << std::setfill('0') << lat
             << "_"                      << std::setw(5) << std::setfill('0') << trc;
 
+    MData::Block ba;
+    ba.begin1 = 0;
+    ba.end1   = md->m_;
+    ba.begin2 = 0;
+    ba.end2   = md->k_;
+
     std::ifstream fa;
     fa.open( fa_name.str().c_str(), ios::in | ios::binary );
-    MData::load( md->A , fa, 4 ); /* skip 4 bytes of fortran unformated */
+    MData::load( md->A, ba, fa, 4 ); /* skip 4 bytes of fortran unformated */
     fa.close();
 
     // loop over fields
@@ -118,12 +124,12 @@ void kronos::Gemm::setup( const boost::filesystem::path& p,
     MData::Block bc;
 
     bb.begin1 = 0;
-    bb.end1   = md->B.size1();
+    bb.end1   = md->k_;
     bb.begin2 = 0;
     bb.end2   = 0;
 
     bc.begin1 = 0;
-    bc.end1   = md->C.size1();
+    bc.end1   = md->m_;
     bc.begin2 = 0;
     bc.end2   = 0;
 
@@ -181,11 +187,10 @@ void kronos::Gemm::run()
     boost::timer tc;
     boost::timer tf;
 
-    for( size_t step = 1; step <= 1; ++step)
-//    for( size_t step = 1; step <= steps_hour_ * 24 * forecast_days_; ++step)
+    for( size_t step = 1; step <= steps_; ++step)
     {
-        if( step % (steps_hour_ * 24) == 0 )
-             std::cout << "> step [" << step << "]" << std::endl;
+//        if( step % ( 6 * 24 ) == 0 )
+//             std::cout << "> step [" << step << "]" << std::endl;
 
         // std::cout << "> copying data to devide" << std::endl;
 
@@ -266,7 +271,7 @@ std::string kronos::Gemm::summary()
 
 //    ret << "["  << this->name() << "]\n" << std::endl;
 
-    ret << "L2 : " << std::setw(12) << norm_L2_ << std::flush;
+    ret << "L2, " << std::setw(12) << norm_L2_ << ", " << std::flush;
 
 //    ret << "timings\n"
 //        << "    initiate  : " << std::setw(12) << timers_.copy_in  << " s\n"
@@ -281,14 +286,38 @@ std::string kronos::Gemm::summary()
 
 //    if(flops_)
 //        ret << "    flops     : " << std::setw(12) << flops_  * 1.0e-9f / timers_.compute << " GFlop/s";
-    if(flops_)
-        ret << "    flops <>  : " << std::setw(12) << flops_  * 1.0e-9f / sumt << " GFlop/s";
+//    if(flops_)
+//        ret << "    flops <>  : " << std::setw(12) << flops_  * 1.0e-9f / sumt << " GFlop/s";
 //    if(copy_into_)
 //        ret << "    bytes >   : " << std::setw(12) << copy_into_ / (1024*1024) / timers_.copy_in << " MB/s";
 //    if(copy_back_)
 //        ret << "    bytes <   : " << std::setw(12) << copy_back_ / (1024*1024) / timers_.copy_out << " MB/s";
 
+    ret << "gflop/s, "   << std::setw(12) << flops_  * 1.0e-9f / timers_.compute << ", ";
+
+    ret << "gflop/s<>, " << std::setw(12) << flops_  * 1.0e-9f / sumt << ", ";
+
+    if(copy_into_)
+        ret << ">MB/s, " << std::setw(12) << copy_into_ / (1024*1024) / timers_.copy_in<< ", ";
+    else
+        ret << ">MB/s, " << std::setw(12) << copy_into_<< ", ";
+
+    if(copy_back_)
+        ret << "<MB/s, " << std::setw(12) << copy_back_ / (1024*1024) / timers_.copy_out<< ", ";
+    else
+        ret << "<MB/s, " << std::setw(12) << copy_back_<< ", ";
+
     return ret.str();
+}
+
+void kronos::Gemm::align_to(const size_t& value)
+{
+    align_to_ = value;
+}
+
+void kronos::Gemm::steps(const size_t &steps)
+{
+    steps_ = steps;
 }
 
 //------------------------------------------------------------------------------------------

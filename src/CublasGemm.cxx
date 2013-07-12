@@ -53,9 +53,9 @@ void kronos::CublasGemm::compute()
     const real_t alpha = 1.0;
     const real_t beta  = 0.0;
 
-    const int m = md->m_;
-    const int k = md->k_;
-    const int n = md->n_;
+    const int m = md->A.size1();
+    const int k = md->A.size2();
+    const int n = md->B.size2();
 
     const int lda = m; // leading dimension in A, lda>=max(1,m)
     const int ldb = k; // leading dimension in B, ldb>=max(1,k)

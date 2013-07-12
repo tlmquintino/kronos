@@ -20,13 +20,25 @@ struct MData
         size_t end2;
     };
 
-    MData( size_t m, size_t k, size_t n ) :
-        m_(m), k_(k), n_(n),
-        A(m,k),
-        B(k,n),
-        C(m,n),
-        Cr(m,n)
+    MData( size_t m, size_t k, size_t n, size_t align ) :
+        m_(m), k_(k), n_(n)
     {
+        if( align && m % align )
+            m = ( m / align + 1 ) * align;
+        if( align && k % align )
+            k = ( k / align + 1 ) * align;
+        if( align && n % align )
+            n = ( n / align + 1 ) * align;
+
+        A.resize (m,k);
+        B.resize (k,n);
+        C.resize (m,n);
+        Cr.resize(m,n);
+
+        A *= 0.;
+        B *= 0.;
+        C *= 0.;
+        Cr*= 0.;
     }
 
     size_t m_;
@@ -39,11 +51,6 @@ struct MData
     matrix_t Cr;  ///< reference answer
 
     double flops() { return 2.0 * (double)m_ * (double)k_ * (double)n_; }
-
-    /// loads a matrix from a stream
-    /// @param be matrix is encoded in big endian
-    /// @param cm matrix is serialized in column-major
-    static void load( matrix_t& m, std::istream& in, size_t skip = 0, bool be = true, bool cm = true );
 
     /// loads a matrix from a stream
     /// @param be matrix is encoded in big endian

@@ -43,11 +43,11 @@ void kronos::CudaGemm::copy_in()
 
 void kronos::CudaGemm::compute()
 {
-    const int M = md->m_;
-    const int K = md->k_;
-    const int N = md->n_;
+    const int m = md->A.size1();
+    const int k = md->A.size2();
+    const int n = md->B.size2();
 
-    cuda_gemm(d_A,d_B,d_C,M,K,N);
+    cuda_gemm(d_A,d_B,d_C,m,k,n);
 }
 
 void kronos::CudaGemm::copy_out()

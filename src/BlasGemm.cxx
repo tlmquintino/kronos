@@ -26,9 +26,9 @@ void kronos::BlasGemm::compute()
     real_t alpha  = 1.0;
     real_t beta   = 0.0;
 
-    int m = md->m_;
-    int k = md->k_;
-    int n = md->n_;
+    int m = md->A.size1();
+    int k = md->A.size2();
+    int n = md->B.size2();
 
     int lda = m; // leading dimension in A, lda>=max(1,m)
     int ldb = k; // leading dimension in B, ldb>=max(1,k)

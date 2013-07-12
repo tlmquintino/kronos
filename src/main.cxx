@@ -157,10 +157,17 @@ void run( boost::shared_ptr<Gemm> gemm, const boost::filesystem::path& p )
         }
 #else
         size_t sumf = std::accumulate(fields.begin(),fields.end(),0);
-        std::cout << "wn "  << std::setw(5) << wn << "   "
-                  << " C (" << std::setw(5) << lat << "," << std::setw(5) << sumf << ") "
-                  << " A (" << std::setw(5) << lat << "," << std::setw(5) << trc << ") "
-                  << " B (" << std::setw(5) << trc << "," << std::setw(5) << sumf << ") "
+
+//        std::cout << "wn "  << std::setw(5) << wn << "   "
+//                  << " C (" << std::setw(5) << lat << "," << std::setw(5) << sumf << ") "
+//                  << " A (" << std::setw(5) << lat << "," << std::setw(5) << trc << ") "
+//                  << " B (" << std::setw(5) << trc << "," << std::setw(5) << sumf << ") "
+//                  << std::flush;
+
+        std::cout << "wn, "   << std::setw(5) << wn << ", "
+                  << "lat, "  << std::setw(5) << lat << ", "
+                  << "trc, "  << std::setw(5) << trc << ", "
+                  << "flds, " << std::setw(5) << sumf << ", "
                   << std::flush;
 
         gemm->setup(p,wn,lat,trc,fields);
@@ -186,6 +193,8 @@ int main(int argc, char * argv[])
   desc.add_options()
           ("help", "produce help message")
           ("test",   boost::program_options::value<std::string>() , "directory with test data" )
+          ("align",  boost::program_options::value<size_t>() , "align to bytes" )
+          ("steps",  boost::program_options::value<size_t>() , "nb steps" )
 //
           ("cpu",      "run with native code")
           ("cuda",     "run with cuda code")
@@ -269,6 +278,19 @@ if( vm.count("blas") )
 #else
       std::cerr << "blas not available -- aborting" << std::endl, ::exit(1);
 #endif
+
+    if( !gemm )
+    {
+        std::cerr << "error: no gemm method chosen" << std::endl;
+        std::cout << desc << std::endl;
+        ::exit(1);
+    }
+
+    if( vm.count("align") )
+        gemm->align_to( vm["align"].as<size_t>() );
+
+    if( vm.count("steps") )
+        gemm->steps( vm["steps"].as<size_t>() );
 
     run( gemm, tpath );
 }
