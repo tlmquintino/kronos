@@ -17,7 +17,7 @@ set( CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake )
 set(Boost_USE_MULTITHREADED      ON )
 set(Boost_USE_STATIC_LIBS        ON )
 
-find_package( Boost 1.50.0 COMPONENTS filesystem program_options date_time thread system  )
+find_package( Boost 1.50.0 COMPONENTS filesystem regex program_options date_time thread system  )
 
 find_package( MKL )
 

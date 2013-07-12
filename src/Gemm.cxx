@@ -37,16 +37,6 @@ void kronos::Gemm::setup( const boost::filesystem::path& p,
 {
 #if 0
 
-    const size_t lat = 1024; ///< latitude
-    const size_t trc = 1024; ///< truncation
-    const size_t fld = 1024; ///< field
-
-    mm_ = new MData( lat, trc, fld );
-
-#endif
-
-#if 0
-
     const size_t lat = 2; ///< latitude
     const size_t trc = 3; ///< truncation
     const size_t fld = 4; ///< field
