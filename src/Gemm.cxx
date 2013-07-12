@@ -37,7 +37,7 @@ void kronos::Gemm::setup( const boost::filesystem::path& p,
 {
     norm_L2_ = 0.;
 
-#if 0
+#if !defined(USE_DOUBLE)
 
     const size_t lat = 2; ///< latitude
     const size_t trc = 3; ///< truncation
@@ -86,9 +86,8 @@ void kronos::Gemm::setup( const boost::filesystem::path& p,
     Cr(0,3) = 42;
     Cr(1,3) = 84;
 //
-#endif
 
-#if 1
+#else
 
     size_t fld = std::accumulate(fields.begin(),fields.end(),0);
 
@@ -231,23 +230,23 @@ bool kronos::Gemm::verify()
 
     norm_L2_ += std::sqrt( norm ) / ( M * N );
 
-    size_t pr = 7;
+//    size_t pr = 7;
 
-    std::cout << "--- A --------------------------------------------" << std::endl;
-    MData::print( md->A , std::cout, pr, pr );
-    std::cout << "--------------------------------------------------" << std::endl;
+//    std::cout << "--- A --------------------------------------------" << std::endl;
+//    MData::print( md->A , std::cout, pr, pr );
+//    std::cout << "--------------------------------------------------" << std::endl;
 
-    std::cout << "--- B --------------------------------------------" << std::endl;
-    MData::print( md->B , std::cout, pr, pr );
-    std::cout << "--------------------------------------------------" << std::endl;
+//    std::cout << "--- B --------------------------------------------" << std::endl;
+//    MData::print( md->B , std::cout, pr, pr );
+//    std::cout << "--------------------------------------------------" << std::endl;
 
-    std::cout << "--- C --------------------------------------------" << std::endl;
-    MData::print( md->C , std::cout, pr, pr );
-    std::cout << "--------------------------------------------------" << std::endl;
+//    std::cout << "--- C --------------------------------------------" << std::endl;
+//    MData::print( md->C , std::cout, pr, pr );
+//    std::cout << "--------------------------------------------------" << std::endl;
 
-    std::cout << "--- Cr --------------------------------------------" << std::endl;
-    MData::print( md->Cr , std::cout, pr, pr );
-    std::cout << "--------------------------------------------------" << std::endl;
+//    std::cout << "--- Cr --------------------------------------------" << std::endl;
+//    MData::print( md->Cr , std::cout, pr, pr );
+//    std::cout << "--------------------------------------------------" << std::endl;
 }
 
 void kronos::Gemm::teardown()
@@ -265,27 +264,27 @@ std::string kronos::Gemm::summary()
 
 //    ret << "["  << this->name() << "]\n" << std::endl;
 
-    ret << "L2 : " << norm_L2_ << std::flush;
+    ret << "L2 : " << std::setw(12) << norm_L2_ << std::flush;
 
 //    ret << "timings\n"
-//        << "\t initiate  : " << std::setw(12) << timers_.copy_in  << " s\n"
-//        << "\t compute   : " << std::setw(12) << timers_.compute  << " s\n"
-//        << "\t terminate : " << std::setw(12) << timers_.copy_out << " s\n"
-//        << "\t sum       : " << std::setw(12) << sumt << " s\n"
+//        << "    initiate  : " << std::setw(12) << timers_.copy_in  << " s\n"
+//        << "    compute   : " << std::setw(12) << timers_.compute  << " s\n"
+//        << "    terminate : " << std::setw(12) << timers_.copy_out << " s\n"
+//        << "    sum       : " << std::setw(12) << sumt << " s\n"
 //        << "quantities\n"
-//        << "\t flops     : " << std::setw(12) << flops_ << "\n"
-//        << "\t bytes >   : " << std::setw(12) << copy_into_ / (1024*1024) << " MB \n"
-//        << "\t bytes <   : " << std::setw(12) << copy_back_ / (1024*1024) << " MB \n"
+//        << "    flops     : " << std::setw(12) << flops_ << "\n"
+//        << "    bytes >   : " << std::setw(12) << copy_into_ / (1024*1024) << " MB \n"
+//        << "    bytes <   : " << std::setw(12) << copy_back_ / (1024*1024) << " MB \n"
 //        << "rates\n";
 
 //    if(flops_)
-//        ret << "\t flops     : " << std::setw(12) << flops_  * 1.0e-9f / timers_.compute << " GFlop/s\n";
-//    if(flops_)
-//        ret << "\t flops <>  : " << std::setw(12) << flops_  * 1.0e-9f / sumt << " GFlop/s\n";
+//        ret << "    flops     : " << std::setw(12) << flops_  * 1.0e-9f / timers_.compute << " GFlop/s";
+    if(flops_)
+        ret << "    flops <>  : " << std::setw(12) << flops_  * 1.0e-9f / sumt << " GFlop/s";
 //    if(copy_into_)
-//        ret << "\t bytes >   : " << std::setw(12) << copy_into_ / (1024*1024) / timers_.copy_in << " MB/s\n";
+//        ret << "    bytes >   : " << std::setw(12) << copy_into_ / (1024*1024) / timers_.copy_in << " MB/s";
 //    if(copy_back_)
-//        ret << "\t bytes <   : " << std::setw(12) << copy_back_ / (1024*1024) / timers_.copy_out << " MB/s\n";
+//        ret << "    bytes <   : " << std::setw(12) << copy_back_ / (1024*1024) / timers_.copy_out << " MB/s";
 
     return ret.str();
 }

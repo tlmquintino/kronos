@@ -1,6 +1,9 @@
 #include <iostream>
 #include <cassert>
 #include <limits>
+#include <iomanip>
+#include <numeric>
+
 
 #include <boost/shared_ptr.hpp>
 #include <boost/timer.hpp>
@@ -104,7 +107,7 @@ void run( boost::shared_ptr<Gemm> gemm, const boost::filesystem::path& p )
         {
             assert( sm.size() == 4 );
 
-            std::copy( sm.begin(), sm.end(), std::ostream_iterator<std::string>(std::cout, "\n"));
+//            std::copy( sm.begin(), sm.end(), std::ostream_iterator<std::string>(std::cout, "\n"));
 
             size_t wn = boost::lexical_cast<size_t>( sm[1] );
 
@@ -127,18 +130,20 @@ void run( boost::shared_ptr<Gemm> gemm, const boost::filesystem::path& p )
 
         std::sort( fields.begin(), fields.end() );
 
+//#define FIELD_BY_FIELD
+
+#ifdef  FIELD_BY_FIELD
+
         for( size_t f = 0; f < fields.size(); ++f )
         {
             std::vector<size_t> f1;
             f1 += fields[f];
 
-            std::cout << "wn " << wn << "   "
-                      << "C(" << lat << "," << fields[f] << ")"
-                      << " = "
-                      << "A(" << lat << "," << trc << ")"
-                      << " * "
-                      << "B(" << trc << "," << fields[f] << ")"
-                      << " " << std::flush;
+            std::cout << "wn "  << std::setw(5) << wn << "   "
+                      << " C (" << std::setw(5) << lat << "," << std::setw(5) << fields[f] << ") "
+                      << " A (" << std::setw(5) << lat << "," << std::setw(5) << trc << ") "
+                      << " B (" << std::setw(5) << trc << "," << std::setw(5) << fields[f] << ") "
+                      << std::flush;
 
             gemm->setup(p,wn,lat,trc,f1);
 
@@ -150,6 +155,25 @@ void run( boost::shared_ptr<Gemm> gemm, const boost::filesystem::path& p )
 
             std::cout << gemm->summary() << std::endl;
         }
+#else
+        size_t sumf = std::accumulate(fields.begin(),fields.end(),0);
+        std::cout << "wn "  << std::setw(5) << wn << "   "
+                  << " C (" << std::setw(5) << lat << "," << std::setw(5) << sumf << ") "
+                  << " A (" << std::setw(5) << lat << "," << std::setw(5) << trc << ") "
+                  << " B (" << std::setw(5) << trc << "," << std::setw(5) << sumf << ") "
+                  << std::flush;
+
+        gemm->setup(p,wn,lat,trc,fields);
+
+        gemm->run();
+
+        gemm->verify();
+
+        gemm->teardown();
+
+        std::cout << gemm->summary() << std::endl;
+#endif
+
     }
 }
 
