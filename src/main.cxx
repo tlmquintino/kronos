@@ -195,6 +195,7 @@ int main(int argc, char * argv[])
           ("test",   boost::program_options::value<std::string>() , "directory with test data" )
           ("align",  boost::program_options::value<size_t>() , "align to bytes" )
           ("steps",  boost::program_options::value<size_t>() , "nb steps" )
+          ("threads",boost::program_options::value<size_t>() , "nb threads" )
 //
           ("cpu",      "run with native code")
           ("cuda",     "run with cuda code")
@@ -291,6 +292,9 @@ if( vm.count("blas") )
 
     if( vm.count("steps") )
         gemm->steps( vm["steps"].as<size_t>() );
+
+    if( vm.count("threads") )
+        gemm->threads( vm["threads"].as<size_t>() );
 
     run( gemm, tpath );
 }

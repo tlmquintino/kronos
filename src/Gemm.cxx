@@ -22,7 +22,8 @@ kronos::Gemm::Gemm() :
     copy_back_(0.),
     flops_(0.),
     steps_(1),
-    align_to_(0)
+    align_to_(0),
+    threads_(1)
 {
     timers_.copy_in  = 0.;
     timers_.compute  = 0.;
@@ -41,17 +42,21 @@ void kronos::Gemm::setup( const boost::filesystem::path& p,
 
 #ifdef USE_SMALL_MATRICES
 
-    const size_t lat = 2; ///< latitude
-    const size_t trc = 3; ///< truncation
-    const size_t fld = 4; ///< field
+    const size_t lat_ = 2000;
+    const size_t trc_ = 2000;
+    const size_t fld_ = 4640;
 
-    mm_ = new MData( lat, trc, fld );
+    md = new MData( lat_, trc_, fld_, align_to_ );
 
-    MData::matrix_t& A  = mm_->A;
-    MData::matrix_t& B  = mm_->B;
-    MData::matrix_t& Cr = mm_->Cr;
+    size_A = md->A.size1() * md->A.size2();
+    size_B = md->B.size1() * md->B.size2();
+    size_C = md->C.size1() * md->C.size2();
 
-//
+    MData::matrix_t& A  = md->A;
+    MData::matrix_t& B  = md->B;
+    MData::matrix_t& Cr = md->Cr;
+
+#ifdef INIT_MAT
     A(0,0) = 1;
     A(0,1) = 2;
     A(0,2) = 3;
@@ -88,6 +93,7 @@ void kronos::Gemm::setup( const boost::filesystem::path& p,
     Cr(0,3) = 42;
     Cr(1,3) = 84;
 //
+#endif
 
 #else
 
@@ -191,7 +197,7 @@ void kronos::Gemm::run()
 //        if( step % ( 6 * 24 ) == 0 )
 //             std::cout << "> step [" << step << "]" << std::endl;
 
-        // std::cout << "> copying data to devide" << std::endl;
+//         std::cout << "> copying data to devide" << std::endl;
 
         t1 = boost::posix_time::microsec_clock::universal_time();
 
@@ -200,7 +206,7 @@ void kronos::Gemm::run()
         dt = boost::posix_time::microsec_clock::universal_time() - t1;
         timers_.copy_in += dt.total_microseconds() / 1E6; /* in seconds */
 
-        //  std::cout << "> computing" << std::endl;
+//          std::cout << "> computing" << std::endl;
 
         t1 = boost::posix_time::microsec_clock::universal_time();
 
@@ -211,7 +217,7 @@ void kronos::Gemm::run()
 
         flops_ += md->flops();
 
-        //  std::cout << "> copying data from devide" << std::endl;
+//          std::cout << "> copying data from devide" << std::endl;
 
         t1 = boost::posix_time::microsec_clock::universal_time();
 
@@ -295,6 +301,8 @@ std::string kronos::Gemm::summary()
 //    if(copy_back_)
 //        ret << "    bytes <   : " << std::setw(12) << copy_back_ / (1024*1024) / timers_.copy_out << " MB/s";
 
+    //--------------
+
     ret << "gflop/s, "   << std::setw(12) << flops_  * 1.0e-9f / timers_.compute << ", ";
 
     ret << "gflop/s<>, " << std::setw(12) << flops_  * 1.0e-9f / sumt << ", ";
@@ -309,6 +317,16 @@ std::string kronos::Gemm::summary()
     else
         ret << "<MB/s, " << std::setw(12) << copy_back_<< ", ";
 
+    //--------------
+
+    ret << "flops, "   << std::setw(12) << flops_ << ", ";
+    ret << "B>, " << std::setw(12) << copy_into_ << ", ";
+    ret << "B<, " << std::setw(12) << copy_back_ << ", ";
+
+    ret << "t>, " << std::setw(12) << timers_.copy_in << ", ";
+    ret << "tc, " << std::setw(12) << timers_.compute << ", ";
+    ret << "t<, " << std::setw(12) << timers_.copy_out << ", ";
+
     return ret.str();
 }
 
@@ -317,9 +335,14 @@ void kronos::Gemm::align_to(const size_t& value)
     align_to_ = value;
 }
 
-void kronos::Gemm::steps(const size_t &steps)
+void kronos::Gemm::steps(const size_t& steps)
 {
     steps_ = steps;
+}
+
+void kronos::Gemm::threads(const size_t& threads)
+{
+    threads_ = threads;
 }
 
 //------------------------------------------------------------------------------------------

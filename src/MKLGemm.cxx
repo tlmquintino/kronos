@@ -25,8 +25,8 @@ void kronos::MKLGemm::compute()
           real_t* C = &md->C.data()[0];
 
 //    std::cout << "max threads : " << MKL_Get_Max_Threads() << std::endl;
-    MKL_Set_Num_Threads(8);
-    mkl_domain_set_num_threads ( 8, MKL_BLAS );
+    MKL_Set_Num_Threads( threads_ );
+//    mkl_domain_set_num_threads ( threads_, MKL_BLAS );
 
     cblas_dgemm( CblasColMajor, CblasNoTrans, CblasNoTrans,
                  m, n, k, alpha, A, lda, B, ldb, beta, C, ldc);

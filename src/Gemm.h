@@ -38,9 +38,11 @@ public: // methods
     /// provides a summary of the test
     std::string summary();
 
-    void align_to(const size_t &value);
+    void align_to(const size_t& );
 
-    void steps(const size_t &steps);
+    void steps(const size_t& );
+
+    void threads(const size_t& );
 
 protected: // methods
 
@@ -88,6 +90,8 @@ protected: // members
     size_t size_C;
 
     size_t align_to_;
+
+    size_t threads_;
 };
 
 //------------------------------------------------------------------------------------------
