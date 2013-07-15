@@ -28,6 +28,9 @@ private: // members
     real_t* d_B; ///< device memory matrix B
     real_t* d_C; ///< device memory matrix C
 
+    real_t* p_B; ///< pinned host memory matrix B
+    real_t* p_C; ///< pinned host memory matrix C
+
     cublasHandle_t handle;
     cudaError_t error;
 };
