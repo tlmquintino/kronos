@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <numeric>
 
-#include <boost/timer.hpp>
+#include "boost/date_time/posix_time/posix_time.hpp"
 
 #include "kronos_config.h"
 
@@ -183,9 +183,8 @@ void kronos::Gemm::setup( const boost::filesystem::path& p,
 
 void kronos::Gemm::run()
 {
-    boost::timer ti;
-    boost::timer tc;
-    boost::timer tf;
+    boost::posix_time::ptime t1;
+    boost::posix_time::time_duration dt;
 
     for( size_t step = 1; step <= steps_; ++step)
     {
@@ -194,29 +193,32 @@ void kronos::Gemm::run()
 
         // std::cout << "> copying data to devide" << std::endl;
 
-        ti.restart();
+        t1 = boost::posix_time::microsec_clock::universal_time();
 
         copy_in();
 
-        timers_.copy_in += ti.elapsed();
+        dt = boost::posix_time::microsec_clock::universal_time() - t1;
+        timers_.copy_in += dt.total_microseconds() / 1E6; /* in seconds */
 
         //  std::cout << "> computing" << std::endl;
 
-        tc.restart();
+        t1 = boost::posix_time::microsec_clock::universal_time();
 
         compute();
 
-        timers_.compute += tc.elapsed();
+        dt = boost::posix_time::microsec_clock::universal_time() - t1;
+        timers_.compute += dt.total_microseconds() / 1E6; /* in seconds */
 
         flops_ += md->flops();
 
         //  std::cout << "> copying data from devide" << std::endl;
 
-        tf.restart();
+        t1 = boost::posix_time::microsec_clock::universal_time();
 
         copy_out();
 
-        timers_.copy_out += tf.elapsed();
+        dt = boost::posix_time::microsec_clock::universal_time() - t1;
+        timers_.copy_out += dt.total_microseconds() / 1E6; /* in seconds */
     }
 }
 
