@@ -33,7 +33,7 @@ main(int argc, char** argv)
     unsigned int mem_size_B = sizeof(real_t) * size_B;
     real_t* h_B = (real_t*) malloc(mem_size_B);
  
-    /* 2. initialize host memory*/
+    /* 2. initialize host memory*/-
     randomInit(h_A, size_A);
     randomInit(h_B, size_B);
   

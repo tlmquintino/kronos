@@ -6,6 +6,10 @@
 
 #define PINNED_MEM
 
+//#ifdef PINNED_MEM
+//  #define OVERLAP_COMP
+//#endif
+
 //------------------------------------------------------------------------------------------
 
 kronos::CublasGemm::CublasGemm()
@@ -26,10 +30,6 @@ void kronos::CublasGemm::initiate_env()
 
 //        printf("GPU Device %d: \"%s\" with compute capability %d.%d\n\n", devID, deviceProp.name, deviceProp.major, deviceProp.minor);
 
-    unsigned int mem_size_A = sizeof(real_t) * size_A;
-    unsigned int mem_size_B = sizeof(real_t) * size_B;
-    unsigned int mem_size_C = sizeof(real_t) * size_C;
-
     CALL_CUDA( cudaMallocHost((void**)&p_B, mem_size_B) );
     CALL_CUDA( cudaMallocHost((void**)&p_C, mem_size_C) );
 
@@ -39,26 +39,28 @@ void kronos::CublasGemm::initiate_env()
 
     CALL_CUBLAS( cublasCreate(&handle) );
 
+}
+
+void kronos::CublasGemm::pre_process()
+{
     real_t* A = &md->A.data()[0];
-    real_t* B = &md->B.data()[0];
-
-//    std::cout << __FILE__ << " +" << __LINE__ << std::endl;
-
-    ::memcpy(p_B,B,mem_size_B);
-
     CALL_CUDA( cudaMemcpy(d_A, A, mem_size_A, cudaMemcpyHostToDevice) );
+
+#ifdef PINNED_MEM
+    real_t* B = &md->B.data()[0];
+    ::memcpy(p_B,B,mem_size_B);
+#endif
 }
 
 void kronos::CublasGemm::copy_in()
 {
-    size_t mem_size_B = size_B * sizeof(real_t);
-
-#ifndef PINNED_MEM
+#ifdef PINNED_MEM
+    CALL_CUDA( cudaMemcpy(d_B, p_B, mem_size_B, cudaMemcpyHostToDevice) );
+#else
     real_t* B = &md->B.data()[0];
     CALL_CUDA( cudaMemcpy(d_B, B, mem_size_B, cudaMemcpyHostToDevice) );
-#else
-    CALL_CUDA( cudaMemcpy(d_B, p_B, mem_size_B, cudaMemcpyHostToDevice) );
 #endif
+
     copy_into_ += mem_size_B;
 }
 
@@ -90,8 +92,6 @@ void kronos::CublasGemm::compute()
 
 void kronos::CublasGemm::copy_out()
 {
-    size_t mem_size_C = size_C * sizeof(real_t);
-
 #ifndef PINNED_MEM
     real_t* C = &md->C.data()[0];
     CALL_CUDA( cudaMemcpy(C, d_C, mem_size_C, cudaMemcpyDeviceToHost) );
@@ -99,6 +99,14 @@ void kronos::CublasGemm::copy_out()
     CALL_CUDA( cudaMemcpy(p_C, d_C, mem_size_C, cudaMemcpyDeviceToHost) );
 #endif
     copy_back_ += mem_size_C;
+}
+
+void kronos::CublasGemm::post_process()
+{
+#ifdef PINNED_MEM
+    real_t* C = &md->C.data()[0];
+    ::memcpy(C,p_C,mem_size_C);
+#endif
 }
 
 void kronos::CublasGemm::terminate_env()

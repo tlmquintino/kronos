@@ -1,3 +1,4 @@
+#include <vector>
 #include <iostream>
 #include <cassert>
 #include <limits>
@@ -44,6 +45,8 @@ using namespace kronos;
 using namespace boost::assign;
 using namespace boost::filesystem;
 
+namespace po = boost::program_options;
+
 //-----------------------------------------------------------------------------
 
 struct WaveN
@@ -63,7 +66,7 @@ struct WaveN
 
 //-----------------------------------------------------------------------------
 
-void run( boost::shared_ptr<Gemm> gemm, const boost::filesystem::path& p )
+void run( po::variables_map& vm, boost::shared_ptr<Gemm> gemm, const boost::filesystem::path& p )
 {
     // some issues with these set of fields ???
 
@@ -118,6 +121,10 @@ void run( boost::shared_ptr<Gemm> gemm, const boost::filesystem::path& p )
         }
     }
 
+    std::vector< size_t > waven;
+    if( vm.count("waven") )
+       waven = vm["waven"].as< std::vector<size_t> >();
+
     std::map< size_t, WaveN >::iterator it = matches.begin();
     for( ; it != matches.end(); ++it )
     {
@@ -125,6 +132,10 @@ void run( boost::shared_ptr<Gemm> gemm, const boost::filesystem::path& p )
         size_t wn  = it->second.wn;
         size_t lat = it->second.lat;
         size_t trc = it->second.trc;
+
+        // skip wave numbers not specified by user
+        if( waven.size() && std::find(waven.begin(),waven.end(),wn) == waven.end() )
+            continue;
 
         std::vector<size_t> fields = it->second.fields;
 
@@ -139,13 +150,9 @@ void run( boost::shared_ptr<Gemm> gemm, const boost::filesystem::path& p )
             std::vector<size_t> f1;
             f1 += fields[f];
 
-            std::cout << "wn "  << std::setw(5) << wn << "   "
-                      << " C (" << std::setw(5) << lat << "," << std::setw(5) << fields[f] << ") "
-                      << " A (" << std::setw(5) << lat << "," << std::setw(5) << trc << ") "
-                      << " B (" << std::setw(5) << trc << "," << std::setw(5) << fields[f] << ") "
-                      << std::flush;
-
             gemm->setup(p,wn,lat,trc,f1);
+
+            std::cout << gemm->prologue() << std::flush;
 
             gemm->run();
 
@@ -156,21 +163,10 @@ void run( boost::shared_ptr<Gemm> gemm, const boost::filesystem::path& p )
             std::cout << gemm->summary() << std::endl;
         }
 #else
-        size_t sumf = std::accumulate(fields.begin(),fields.end(),0);
-
-//        std::cout << "wn "  << std::setw(5) << wn << "   "
-//                  << " C (" << std::setw(5) << lat << "," << std::setw(5) << sumf << ") "
-//                  << " A (" << std::setw(5) << lat << "," << std::setw(5) << trc << ") "
-//                  << " B (" << std::setw(5) << trc << "," << std::setw(5) << sumf << ") "
-//                  << std::flush;
-
-        std::cout << "wn, "   << std::setw(5) << wn << ", "
-                  << "lat, "  << std::setw(5) << lat << ", "
-                  << "trc, "  << std::setw(5) << trc << ", "
-                  << "flds, " << std::setw(5) << sumf << ", "
-                  << std::flush;
 
         gemm->setup(p,wn,lat,trc,fields);
+
+        std::cout << gemm->prologue() << std::flush;
 
         gemm->run();
 
@@ -180,7 +176,6 @@ void run( boost::shared_ptr<Gemm> gemm, const boost::filesystem::path& p )
 
         std::cout << gemm->summary() << std::endl;
 #endif
-
     }
 }
 
@@ -188,14 +183,17 @@ void run( boost::shared_ptr<Gemm> gemm, const boost::filesystem::path& p )
 
 int main(int argc, char * argv[])
 {
+
   // Declare the supported options.
-  boost::program_options::options_description desc("allowed options");
+  po::options_description desc("allowed options");
   desc.add_options()
           ("help", "produce help message")
-          ("test",   boost::program_options::value<std::string>() , "directory with test data" )
-          ("align",  boost::program_options::value<size_t>() , "align to bytes" )
-          ("steps",  boost::program_options::value<size_t>() , "nb steps" )
-          ("threads",boost::program_options::value<size_t>() , "nb threads" )
+          ("test",   po::value<std::string>() , "directory with test data" )
+          ("print",  po::value<bool>() , "print result matrices" )
+          ("align",  po::value<size_t>() , "align to bytes" )
+          ("steps",  po::value<size_t>() , "nb steps" )
+          ("threads",po::value<size_t>() , "nb threads" )
+          ("waven",  po::value< std::vector<size_t> >()->multitoken(), "wave numbers")
 //
           ("cpu",      "run with native code")
           ("cuda",     "run with cuda code")
@@ -206,11 +204,11 @@ int main(int argc, char * argv[])
           ("blas",     "run with blas code")
           ;
 
-  boost::program_options::variables_map vm;
+  po::variables_map vm;
 
   try
   {
-    boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
+    po::store(po::parse_command_line(argc, argv, desc), vm);
   }
   catch (...)
   {
@@ -218,7 +216,7 @@ int main(int argc, char * argv[])
       ::exit(1);
   }
 
-  boost::program_options::notify(vm);
+  po::notify(vm);
 
   if (vm.count("help")) {
       std::cout << desc << std::endl;
@@ -296,5 +294,8 @@ if( vm.count("blas") )
     if( vm.count("threads") )
         gemm->threads( vm["threads"].as<size_t>() );
 
-    run( gemm, tpath );
+    if( vm.count("print") )
+        gemm->print_results( vm["print"].as<bool>() );
+
+    run( vm, gemm, tpath );
 }

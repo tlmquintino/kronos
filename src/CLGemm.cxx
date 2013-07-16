@@ -11,8 +11,6 @@ void kronos::CLGemm::initiate_env()
 
 void kronos::CLGemm::copy_in()
 {
-    unsigned int mem_size_B = sizeof(real_t) * size_B;
-
     /// @todo implement memory copy
 
     real_t* B = &md->B.data()[0];
@@ -27,8 +25,6 @@ void kronos::CLGemm::compute()
 
 void kronos::CLGemm::copy_out()
 {
-    unsigned int mem_size_C = sizeof(real_t) * size_C;
-
     real_t* C = &md->C.data()[0];
 
     /// @todo implement memory copy

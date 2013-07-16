@@ -17,9 +17,11 @@ public:
     std::string name() { return "cublas"; }
 
     void initiate_env();
+    void pre_process();
     void copy_in();
     void compute();
     void copy_out();
+    void post_process();
     void terminate_env();
 
 private: // members

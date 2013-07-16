@@ -35,7 +35,10 @@ public: // methods
     /// releases the test data from memory
     void teardown();
 
-    /// provides a summary of the test
+    /// provides a summary of the test inputs
+    std::string prologue();
+
+    /// provides a summary of the test results
     std::string summary();
 
     void align_to(const size_t& );
@@ -43,6 +46,8 @@ public: // methods
     void steps(const size_t& );
 
     void threads(const size_t& );
+
+    void print_results( bool v ){ print_results_ = v; }
 
 protected: // methods
 
@@ -61,6 +66,9 @@ protected: // methods
     /// copies out iteration dependent data from device
     virtual void copy_out() {}
 
+    /// post-process computations ( not dependent on iterations )
+    virtual void post_process() {}
+
     /// terminates the computing environment
     virtual void terminate_env() {}
 
@@ -76,22 +84,32 @@ protected: // members
     Timers timers_;
 
     real_t norm_L2_;
-
     double copy_into_;
     double copy_back_;
     double flops_;
 
-    MData* md;
-
     size_t steps_;
+    size_t align_to_;
+    size_t threads_;
+    bool   print_results_;
+
+protected: // members
+
+    MData* md;
 
     size_t size_A;
     size_t size_B;
     size_t size_C;
 
-    size_t align_to_;
+    size_t mem_size_A;
+    size_t mem_size_B;
+    size_t mem_size_C;
 
-    size_t threads_;
+    size_t wn_;
+    size_t lat_;
+    size_t trc_;
+    size_t sumf_;
+
 };
 
 //------------------------------------------------------------------------------------------

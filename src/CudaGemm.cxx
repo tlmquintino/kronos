@@ -14,10 +14,6 @@ kronos::CudaGemm::CudaGemm()
 
 void kronos::CudaGemm::initiate_env()
 {
-    unsigned int mem_size_A = sizeof(real_t) * size_A;
-    unsigned int mem_size_B = sizeof(real_t) * size_B;
-    unsigned int mem_size_C = sizeof(real_t) * size_C;
-
     CALL_CUDA( cudaMalloc((void**) &d_A, mem_size_A) );
     CALL_CUDA( cudaMalloc((void**) &d_B, mem_size_B) );
     CALL_CUDA( cudaMalloc((void**) &d_C, mem_size_C) );
@@ -31,8 +27,6 @@ void kronos::CudaGemm::initiate_env()
 void kronos::CudaGemm::copy_in()
 {
     size_B = md->B.size1() * md->B.size2();
-
-    unsigned int mem_size_B = sizeof(real_t) * size_B;
 
     const real_t* B = &md->B.data()[0];
 
@@ -52,8 +46,6 @@ void kronos::CudaGemm::compute()
 
 void kronos::CudaGemm::copy_out()
 {
-    unsigned int mem_size_C = sizeof(real_t) * size_C;
-
     real_t* C = &md->C.data()[0];
 
     CALL_CUDA( cudaMemcpy(C, d_C, mem_size_C, cudaMemcpyDeviceToHost) );

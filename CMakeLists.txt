@@ -1,8 +1,5 @@
 # TODO:
-#   * add high resolution timer
-#   * mkl use all threads
-#   * streamming?
-#   * async mode?
+#   * cuda streamming / async
 
 cmake_minimum_required( VERSION 2.8 )
 
@@ -31,6 +28,8 @@ find_package( BLAS )
 
 ### options
 
+option( SANDBOX "build sandbox" OFF )
+
 option( USE_DOUBLE "enable double" ON )
 if( USE_DOUBLE )
     message( STATUS "real_t --> double" )
@@ -50,11 +49,11 @@ configure_file( kronos_config.h.in kronos_config.h @ONLY )
 
 add_subdirectory( src )
 
-if( CUDA_FOUND )
+if( SANDBOX AND CUDA_FOUND )
     add_subdirectory( cuda )
 endif()
 
-if( OPENCL_FOUND )
+if( SANDBOX AND OPENCL_FOUND )
     add_subdirectory( opencl )
 endif()
 

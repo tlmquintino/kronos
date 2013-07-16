@@ -16,6 +16,14 @@ using namespace std;
 
 //------------------------------------------------------------------------------------------
 
+void random_init(real_t* data, int size)
+{
+    for ( size_t i = 0; i < size; ++i )
+        data[i] = rand() / (real_t) RAND_MAX;
+}
+
+//------------------------------------------------------------------------------------------
+
 kronos::Gemm::Gemm() :
     norm_L2_(0.),
     copy_into_(0.),
@@ -23,7 +31,8 @@ kronos::Gemm::Gemm() :
     flops_(0.),
     steps_(1),
     align_to_(0),
-    threads_(1)
+    threads_(1),
+    print_results_(false)
 {
     timers_.copy_in  = 0.;
     timers_.compute  = 0.;
@@ -36,25 +45,48 @@ void kronos::Gemm::setup( const boost::filesystem::path& p,
                           const size_t trc,
                           const std::vector<size_t>& fields )
 {
-    norm_L2_ = 0.;
+    timers_.copy_in  = 0.;
+    timers_.compute  = 0.;
+    timers_.copy_out = 0.;
 
-//#define USE_SMALL_MATRICES
+    norm_L2_   = 0.;
+    copy_into_ = 0.,
+    copy_back_ = 0.,
+    flops_     = 0.;
+
+    wn_   = wn;
+    lat_  = lat;
+    trc_  = trc;
+    sumf_ = std::accumulate(fields.begin(),fields.end(),0);
+
+
+#define USE_SMALL_MATRICES
 
 #ifdef USE_SMALL_MATRICES
 
-    const size_t lat_ = 2000;
-    const size_t trc_ = 2000;
-    const size_t fld_ = 4640;
 
-    md = new MData( lat_, trc_, fld_, align_to_ );
+    lat_ = 2000;
+    trc_ = 2000;
+    sumf_ = 4640;
+
+    md = new MData( lat_, trc_, sumf_, align_to_ );
 
     size_A = md->A.size1() * md->A.size2();
     size_B = md->B.size1() * md->B.size2();
     size_C = md->C.size1() * md->C.size2();
 
+    mem_size_A = sizeof(real_t) * size_A;
+    mem_size_B = sizeof(real_t) * size_B;
+    mem_size_C = sizeof(real_t) * size_C;
+
     MData::matrix_t& A  = md->A;
     MData::matrix_t& B  = md->B;
     MData::matrix_t& Cr = md->Cr;
+
+    random_init( &A.data()[0], size_A );
+    random_init( &B.data()[0], size_B );
+
+//    Cr = prod( A , B );
 
 #ifdef INIT_MAT
     A(0,0) = 1;
@@ -97,13 +129,15 @@ void kronos::Gemm::setup( const boost::filesystem::path& p,
 
 #else
 
-    size_t fld = std::accumulate(fields.begin(),fields.end(),0);
-
-    md = new MData( lat, trc, fld, align_to_ );
+    md = new MData( lat, trc, sumf_, align_to_ );
 
     size_A = md->A.size1() * md->A.size2();
     size_B = md->B.size1() * md->B.size2();
     size_C = md->C.size1() * md->C.size2();
+
+    mem_size_A = sizeof(real_t) * size_A;
+    mem_size_B = sizeof(real_t) * size_B;
+    mem_size_C = sizeof(real_t) * size_C;
 
     // load A
 
@@ -185,6 +219,8 @@ void kronos::Gemm::setup( const boost::filesystem::path& p,
 #endif
 
     initiate_env();
+
+    pre_process();
 }
 
 void kronos::Gemm::run()
@@ -230,6 +266,8 @@ void kronos::Gemm::run()
 
 bool kronos::Gemm::verify()
 {
+    post_process();
+
     const size_t M = md->m_;
     const size_t N = md->n_;
 
@@ -245,23 +283,26 @@ bool kronos::Gemm::verify()
 
     norm_L2_ += std::sqrt( norm ) / ( M * N );
 
-//    size_t pr = 7;
+    if( print_results_ )
+    {
+        const size_t pr = 7;
 
-//    std::cout << "--- A --------------------------------------------" << std::endl;
-//    MData::print( md->A , std::cout, pr, pr );
-//    std::cout << "--------------------------------------------------" << std::endl;
+        std::cout << "--- A --------------------------------------------" << std::endl;
+        MData::print( md->A , std::cout, pr, pr );
+        std::cout << "--------------------------------------------------" << std::endl;
 
-//    std::cout << "--- B --------------------------------------------" << std::endl;
-//    MData::print( md->B , std::cout, pr, pr );
-//    std::cout << "--------------------------------------------------" << std::endl;
+        std::cout << "--- B --------------------------------------------" << std::endl;
+        MData::print( md->B , std::cout, pr, pr );
+        std::cout << "--------------------------------------------------" << std::endl;
 
-//    std::cout << "--- C --------------------------------------------" << std::endl;
-//    MData::print( md->C , std::cout, pr, pr );
-//    std::cout << "--------------------------------------------------" << std::endl;
+        std::cout << "--- C --------------------------------------------" << std::endl;
+        MData::print( md->C , std::cout, pr, pr );
+        std::cout << "--------------------------------------------------" << std::endl;
 
-//    std::cout << "--- Cr --------------------------------------------" << std::endl;
-//    MData::print( md->Cr , std::cout, pr, pr );
-//    std::cout << "--------------------------------------------------" << std::endl;
+        std::cout << "--- Cr -------------------------------------------" << std::endl;
+        MData::print( md->Cr , std::cout, pr, pr );
+        std::cout << "--------------------------------------------------" << std::endl;
+    }
 }
 
 void kronos::Gemm::teardown()
@@ -271,35 +312,25 @@ void kronos::Gemm::teardown()
     delete md;
 }
 
+string kronos::Gemm::prologue()
+{
+    std::ostringstream ret;
+
+    ret       << "wn, "   << std::setw(5) << wn_ << ", "
+              << "lat, "  << std::setw(5) << lat_ << ", "
+              << "trc, "  << std::setw(5) << trc_ << ", "
+              << "flds, " << std::setw(5) << sumf_ << ", " ;
+
+    return ret.str();
+}
+
 std::string kronos::Gemm::summary()
 {
     std::ostringstream ret;
 
     double sumt = timers_.copy_in + timers_.compute + timers_.copy_out;
 
-//    ret << "["  << this->name() << "]\n" << std::endl;
-
     ret << "L2, " << std::setw(12) << norm_L2_ << ", " << std::flush;
-
-//    ret << "timings\n"
-//        << "    initiate  : " << std::setw(12) << timers_.copy_in  << " s\n"
-//        << "    compute   : " << std::setw(12) << timers_.compute  << " s\n"
-//        << "    terminate : " << std::setw(12) << timers_.copy_out << " s\n"
-//        << "    sum       : " << std::setw(12) << sumt << " s\n"
-//        << "quantities\n"
-//        << "    flops     : " << std::setw(12) << flops_ << "\n"
-//        << "    bytes >   : " << std::setw(12) << copy_into_ / (1024*1024) << " MB \n"
-//        << "    bytes <   : " << std::setw(12) << copy_back_ / (1024*1024) << " MB \n"
-//        << "rates\n";
-
-//    if(flops_)
-//        ret << "    flops     : " << std::setw(12) << flops_  * 1.0e-9f / timers_.compute << " GFlop/s";
-//    if(flops_)
-//        ret << "    flops <>  : " << std::setw(12) << flops_  * 1.0e-9f / sumt << " GFlop/s";
-//    if(copy_into_)
-//        ret << "    bytes >   : " << std::setw(12) << copy_into_ / (1024*1024) / timers_.copy_in << " MB/s";
-//    if(copy_back_)
-//        ret << "    bytes <   : " << std::setw(12) << copy_back_ / (1024*1024) / timers_.copy_out << " MB/s";
 
     //--------------
 
