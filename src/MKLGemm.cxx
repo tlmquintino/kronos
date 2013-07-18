@@ -28,6 +28,11 @@ void kronos::MKLGemm::compute()
     MKL_Set_Num_Threads( threads_ );
 //    mkl_domain_set_num_threads ( threads_, MKL_BLAS );
 
+#if USE_DOUBLE
     cblas_dgemm( CblasColMajor, CblasNoTrans, CblasNoTrans,
                  m, n, k, alpha, A, lda, B, ldb, beta, C, ldc);
+#else
+    cblas_sgemm( CblasColMajor, CblasNoTrans, CblasNoTrans,
+                 m, n, k, alpha, A, lda, B, ldb, beta, C, ldc);
+#endif
 }
