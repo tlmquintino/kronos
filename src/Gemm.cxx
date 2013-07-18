@@ -64,10 +64,9 @@ void kronos::Gemm::setup( const boost::filesystem::path& p,
 
 #ifdef USE_SMALL_MATRICES
 
-
-    lat_ = 2000;
-    trc_ = 2000;
-    sumf_ = 4640;
+    lat_  = 4*1024;
+    trc_  = 4*1024;
+    sumf_ = 6*1024;
 
     md = new MData( lat_, trc_, sumf_, align_to_ );
 
@@ -303,6 +302,8 @@ bool kronos::Gemm::verify()
         MData::print( md->Cr , std::cout, pr, pr );
         std::cout << "--------------------------------------------------" << std::endl;
     }
+
+   return true;
 }
 
 void kronos::Gemm::teardown()
