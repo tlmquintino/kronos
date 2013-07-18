@@ -1,6 +1,7 @@
 if( Boost_FOUND )
 
     include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
+    include_directories( ${Boost_INCLUDE_DIRS} )
 
     add_library( gemmcore Gemm.cxx Gemm.h CpuGemm.cxx  CpuGemm.h MData.h MData.cxx Endian.h )
 
