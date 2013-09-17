@@ -1,4 +1,4 @@
 kronos
 ======
 
-Son of Earth and Sky
+Timing benchmark for high performance computing
