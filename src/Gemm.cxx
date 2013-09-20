@@ -229,8 +229,8 @@ void kronos::Gemm::run()
 
     for( size_t step = 1; step <= steps_; ++step)
     {
-//        if( step % ( 6 * 24 ) == 0 )
-//             std::cout << "> step [" << step << "]" << std::endl;
+       if( step % ( 6 ) == 0 )
+            std::cout << "> step [" << step << "]" << std::endl;
 
 //         std::cout << "> copying data to devide" << std::endl;
 
@@ -249,6 +249,8 @@ void kronos::Gemm::run()
 
         dt = boost::posix_time::microsec_clock::universal_time() - t1;
         timers_.compute += dt.total_microseconds() / 1E6; /* in seconds */
+
+        std::cout << "gflop/s " << std::setw(12) << md->flops()  * 1.0e-9f / ( dt.total_microseconds() / 1E6 )  << std::endl;
 
         flops_ += md->flops();
 
