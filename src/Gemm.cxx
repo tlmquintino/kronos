@@ -64,6 +64,8 @@ void kronos::Gemm::setup( const boost::filesystem::path& p,
     char hname [255];
     if( ::gethostname( hname, 255 ) ) std::cout << "error in gethostname()" << std::endl, ::exit(-1);
 
+    std::cout << "hostname: " << hname << std::endl; 
+
 #define USE_SMALL_MATRICES
 
 #ifdef USE_SMALL_MATRICES
