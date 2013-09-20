@@ -4,6 +4,8 @@
 #include <iomanip>
 #include <numeric>
 
+#include <unistd.h>
+
 #include "boost/date_time/posix_time/posix_time.hpp"
 
 #include "kronos_config.h"
@@ -59,6 +61,8 @@ void kronos::Gemm::setup( const boost::filesystem::path& p,
     trc_  = trc;
     sumf_ = std::accumulate(fields.begin(),fields.end(),0);
 
+    char hname [255];
+    if( ::gethostname( hname, 255 ) ) std::cout << "error in gethostname()" << std::endl, ::exit(-1);
 
 #define USE_SMALL_MATRICES
 
