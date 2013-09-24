@@ -11,10 +11,10 @@ set( CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake )
 
 # set( Boost_DEBUG 1 )
 set(Boost_USE_MULTITHREADED    ON )
-if( BUILD_SHARED_LIBS )
-    set(Boost_USE_STATIC_LIBS  ON )
-else()
+if( DEFINED BUILD_SHARED_LIBS AND BUILD_SHARED_LIBS )
     set(Boost_USE_STATIC_LIBS  OFF )
+else()
+    set(Boost_USE_STATIC_LIBS  ON )
 endif()
 find_package( Boost COMPONENTS filesystem regex program_options date_time thread system  )
 
