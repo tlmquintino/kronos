@@ -24,11 +24,17 @@ find_package( CUDA )
 
 find_package( OpenCL )
 
+find_package( Eigen3 3.1 )
+
 if( OPENCL_FOUND )
 	find_package( ViennaCL )
 endif()
 
 find_package( BLAS )
+
+if( WITH_LIBSCI AND NOT BLAS_FOUND ) # libsci substitutes blas, but no need to link to (in the Cray)
+  set( BLAS_FOUND 1 )
+endif()
 
 ### options
 
@@ -52,6 +58,10 @@ configure_file( kronos_config.h.in kronos_config.h @ONLY )
 ### contents
 
 add_subdirectory( src )
+
+if( EIGEN3_FOUND )
+    add_subdirectory( eigen )
+endif()
 
 if( SANDBOX AND CUDA_FOUND )
     add_subdirectory( cuda )
@@ -91,5 +101,11 @@ endif()
 message( STATUS "BLAS [${BLAS_FOUND}]" )
 if(BLAS_FOUND)
   message( STATUS "  libs     [${BLAS_LIBRARIES}]" )
+endif()
+
+message( STATUS "Eigen3 [${EIGEN3_FOUND}]" )
+if(BLAS_FOUND)
+  message( STATUS "  version  [${EIGEN3_VERSION}]" )
+  message( STATUS "  includes [${EIGEN3_INCLUDE_DIR}]" )
 endif()
 

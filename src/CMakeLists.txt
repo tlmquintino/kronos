@@ -36,7 +36,9 @@ if( Boost_FOUND )
 
     if( BLAS_FOUND )
         add_library( blasgemm BlasGemm.cxx BlasGemm.h )
-        target_link_libraries( blasgemm ${BLAS_LIBRARIES} )
+        if( NOT WITH_LIBSCI )
+          target_link_libraries( blasgemm ${BLAS_LIBRARIES} )
+        endif()
         target_link_libraries( gemm blasgemm )
     endif()
 
