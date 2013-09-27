@@ -13,7 +13,8 @@ double rand01() // returns double between 0.0 and 1.0
     return (double)rand() / (double)RAND_MAX;
 }
 
-void init_matrix( Eigen::MatrixXd& m )
+template < typename MatrixType >
+void init_matrix( MatrixType& m )
 {
     for( size_t i = 0; i < m.rows(); ++i )
         for( size_t j = 0; j < m.cols(); ++j )
