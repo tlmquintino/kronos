@@ -13,6 +13,8 @@
 
 #include <Eigen/Dense>
 
+#include "utils.h"
+
 using namespace Eigen;
 
 //-----------------------------------------------------------------------------------------
@@ -22,19 +24,7 @@ using namespace Eigen;
 
 #define DATA "m.dat"
 
-std::string sep = "\n----------------------------------------\n";
-
-IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
-
 //-----------------------------------------------------------------------------------------
-
-template < typename MatrixType >
-void init_matrix( MatrixType& m )
-{
-    for( size_t i = 0; i < m.rows(); ++i )
-        for( size_t j = 0; j < m.cols(); ++j )
-            m(i,j) = 1+i*j;
-}
 
 std::string construct()
 {
@@ -73,6 +63,8 @@ std::string construct()
 
     return os.str();
 }
+
+//-----------------------------------------------------------------------------------------
 
 std::string reconstruct()
 {

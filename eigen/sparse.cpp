@@ -5,14 +5,11 @@
 #include <Eigen/Sparse>
 #include <Eigen/Dense>
 
+#include "utils.h"
+
 using namespace Eigen;
 
-double flops( size_t n, size_t k, size_t m) { return 2.0 * (double)m * (double)k * (double)n; }
-
-double rand01() // returns double between 0.0 and 1.0
-{
-    return (double)rand() / (double)RAND_MAX;
-}
+//-----------------------------------------------------------------------------------------
 
 template<typename Scalar, typename Index = size_t >
 class Tri
@@ -33,12 +30,17 @@ public:
 
   /** \returns the value of the element */
   const Scalar& value() const { return m_value; }
-protected:
+
   Index m_row, m_col;
   Scalar m_value;
+
 };
 
+//-----------------------------------------------------------------------------------------
+
 typedef std::vector< Tri<double> > Coef_t;
+
+//-----------------------------------------------------------------------------------------
 
 int main()
 {
@@ -46,7 +48,7 @@ int main()
     const size_t k = 10;
     const size_t m = 20;
 
-    // coefficients
+    // build coefficients of sparse matrix
 
     Coef_t coefs;
     coefs.resize( 3*n );
@@ -56,22 +58,34 @@ int main()
     {
         const size_t r = std::min( i / 3 , n-1 );
         const size_t c = std::min( i / 3 + i % 3 , k-1 );
-        std::cout << "row " << r << " col " << c << " value " << i+1 << std::endl;
-        it->row() = r ;
-        it->col() = c;
-        it->value() = i+1;
+        it->m_row   = r ;
+        it->m_col   = c;
+        it->m_value = i+1;
     }
 
-    for( size_t i = 0; i < coefs.size(); ++i )
-        std::cout << "row " << coefs[i].row()  << " col " << coefs[i].col() << " value " << coefs[i].value() << std::endl;
+//    for( size_t i = 0; i < coefs.size(); ++i )
+//        std::cout << "row " << coefs[i].row()  << " col " << coefs[i].col() << " value " << coefs[i].value() << std::endl;
 
-    // build sparse matrix
+    // assemble sparse matrix
 
     SparseMatrix<double> A(n,k);
     A.setFromTriplets(coefs.begin(),coefs.end());
 
+    std::cout << sep << A << sep << std::endl;
+
+    // make dense matrix
+
     MatrixXd B( k, m);
 
+    init_matrix(B);
+
+    // compute result
+
+    MatrixXd C( n, m);
+
+    C = A * B;
+
+    std::cout << sep << C.format(CleanFmt) << sep << std::endl;
 
     return 0;
 }
