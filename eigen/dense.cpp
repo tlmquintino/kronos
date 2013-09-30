@@ -32,31 +32,18 @@ int main()
 
     osi << C << std::endl;
 
+    //    boost::posix_time::time_duration dt = boost::posix_time::microsec_clock::universal_time() - t1;
+    //    std::cout << "eigen dgemm: " << ( flops(n,k,m) * 1E-9 ) / ( dt.total_microseconds() / 1E6 ) << "gflops" << std::endl;
+
     // verification
 
     MatrixXd Cr(n,m);
+
     Cr.setZero();
 
-    for(size_t i=0; i<n; ++i)
-        for(size_t j=0; j<m; ++j)
-            for(size_t l=0; l<k; ++l)
-                Cr(i,j) +=  A(i,l) * B(l,j);
+    dgemm(Cr,A,B,n,k,m);
 
     osf << Cr << std::endl;
 
-//    boost::posix_time::time_duration dt = boost::posix_time::microsec_clock::universal_time() - t1;
-//    std::cout << "eigen dgemm: " << ( flops(n,k,m) * 1E-9 ) / ( dt.total_microseconds() / 1E6 ) << "gflops" << std::endl;
-
-    if( osi.str() == osf.str() )
-    {
-        std::cout << "OK" << std::endl;
-        return 0;
-    }
-    else
-    {
-        std::cout << "FAIL" << std::endl;
-        return -1;
-    }
-
-    return 0;
+    return verify( osi.str(),osf.str() );
 }

@@ -39,7 +39,7 @@ std::string construct()
 
     Map<MatrixXd> A (mem,rows,cols);
 
-    init_matrix(A);
+    init_rnd(A);
 
     // dump matrix to file
 
@@ -111,14 +111,5 @@ int main()
     std::string s1 = construct();
     std::string s2 = reconstruct();
 
-    if( s1 == s2 )
-    {
-        std::cout << "OK" << std::endl;
-        return 0;
-    }
-    else
-    {
-        std::cout << "FAIL" << std::endl;
-        return -1;
-    }
+    return verify( s1, s2 );
 }

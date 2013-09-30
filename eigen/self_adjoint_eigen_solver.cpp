@@ -28,16 +28,5 @@ int main()
 
     osf << V * D * V.inverse() << std::endl;
 
-    if( osi.str() == osf.str() )
-    {
-        std::cout << "OK" << std::endl;
-        return 0;
-    }
-    else
-    {
-        std::cout << "FAIL" << std::endl;
-        return -1;
-    }
-
-    return 0;
+    return verify( osi.str(),osf.str() );
 }
